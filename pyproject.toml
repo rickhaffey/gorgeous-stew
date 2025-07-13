@@ -1,0 +1,41 @@
+[project]
+name = "scraper"
+version = "0.1.0"
+description = "A simple web scraping pipeline app."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "loguru>=0.7.3",
+    "rich>=14.0.0",
+    "typer>=0.16.0",
+]
+
+[dependency-groups]
+dev = [
+    "coverage>=7.9.1",
+    "pre-commit>=4.2.0",
+    "pytest>=8.4.0",
+    "ruff>=0.12.1",
+]
+
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "D211",  # blank-line-before-class (pydocstyle)
+    "D212",  # multi-line-summary-second-line (pydocstyle)
+    "COM812",  # missing-trailing-comma (flake8-commas); handled by ruff format
+    "D203",   # incorrect-blank-line-before-class (pydocstyle); handled by ruff format
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[tools.setuptools.package-dir]
+scraper="src/scraper"
