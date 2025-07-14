@@ -38,6 +38,8 @@ uv run pre-commit install
 * Logging via [Loguru](https://github.com/Delgan/loguru)
 * Task automation via [Make](https://makefiletutorial.com/)
   * With a properly defined Makefile, it can also be [self-documenting](https://medium.com/aigent/makefiles-for-python-and-beyond-5cf28349bf05).
+* Markdown linting via [markdownlint](https://github.com/DavidAnson/markdownlint)
+  and [markdownlint-cli2](https://github.com/DavidAnson/markdownlint-cli2)
 
 ## Footnotes
 
