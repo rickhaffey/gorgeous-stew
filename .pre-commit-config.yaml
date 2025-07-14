@@ -28,7 +28,7 @@ repos:
           - commit-msg
         args:
           - --verbose
-  # - repo: https://github.com/DavidAnson/markdownlint-cli2
-  #   rev: v0.18.1
-  #   hooks:
-  #   - id: markdownlint-cli2
+  - repo: https://github.com/DavidAnson/markdownlint-cli2
+    rev: v0.18.1
+    hooks:
+      - id: markdownlint-cli2

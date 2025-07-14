@@ -4,7 +4,10 @@ import importlib
 import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from datetime import UTC, datetime
+from pathlib import Path
 
+import requests
 import typer
 from bs4 import BeautifulSoup
 from loguru import logger
@@ -243,6 +246,116 @@ class Pipeline:
             console.print(payload)
 
 
+class WebScraper(Scraper):
+    """Scrapes HTML content from a webpage."""
+
+    def __init__(
+        self,
+        html_root_dir: str,
+        *,
+        write_content: bool = True,
+        write_backup: bool = True,
+    ) -> None:
+        """
+        Instantiate a `WebScraper`.
+
+        Args:
+          html_root_dir: A string representing the path to where HTML content
+            should be stored.
+          write_content: A boolean flag indicating whether scraped content
+            should be written to local storage.
+          write_backup: A boolean flag indicating whether the process should
+            backup previously written files (rather than overwriting.)
+        """
+        self.html_root_dir = Path(html_root_dir)
+        self.write_content = write_content
+        self.write_backup = write_backup
+
+    def _sanitize_url(self, url: str) -> str:
+        """
+        Sanitize a url for usage as a filename.
+
+        - strip prefixes and suffixes
+        - replace special characters
+        """
+        result = url
+
+        for prefix in ["https://", "http://"]:
+            result = result.removeprefix(prefix)
+
+        result = result.removesuffix("/")
+
+        for c in ["/", ".", "_"]:
+            result = result.replace(c, "-")
+
+        return result
+
+    def _build_timestamp(self) -> str:
+        """Build a string representation of the current UTC timestamp."""
+        return datetime.now(tz=UTC).strftime("%Y%m%d%H%M%S")
+
+    def _build_raw_filename(
+        self, url: str, extension: str, *, is_backup: bool = False
+    ) -> Path:
+        """
+        Build a filename for the raw data from the provided `url`.
+
+        The default name of the file consists of a sanitized version of `url`
+        with the `extension` provided.
+
+        If `is_backup = True`, the name also includes a UTC timestamp and an
+        additional '.bak' extension.
+        """
+        result = self._sanitize_url(url)
+
+        if is_backup:
+            return Path(f"{result}.{extension}.{self._build_timestamp()}.bak")
+
+        return Path(f"{result}.{extension}")
+
+    def _backup_page_if_exists(self, url: str) -> bool:
+        """Check if file corresponding to `url` exists, and backup if found."""
+        filepath = self.html_root_dir / self._build_raw_filename(
+            url, "html", is_backup=False
+        )
+
+        if filepath.exists():
+            bak_filepath = self.html_root_dir / self._build_raw_filename(
+                url, "html", is_backup=True
+            )
+            filepath.replace(bak_filepath)
+            return True
+
+        return False
+
+    def scrape(self, payload: Payload) -> Payload:
+        """
+        Scrape HTML content from the webpage at `payload.link.url`.
+
+        If the scraper was configured with `write_content = True`, the HTML
+        content will be written to a file in `html_root_dir`.
+
+        If the scraper was configured with `write_backup = True`, a backup
+        of any previously written file containing this page's contents
+        will be created.  Otherwise, previous files will be overwritten.
+
+        Returns:
+          A `Payload` with HTML from the page in `html_content`.
+        """
+        html = requests.get(payload.link.url, timeout=10).text
+
+        if self.write_content:
+            if self.write_backup:
+                self._backup_page_if_exists(payload.link.url)
+
+            filepath = self.html_root_dir / self._build_raw_filename(
+                payload.link.url, "html", is_backup=False
+            )
+            filepath.write_text(html)
+
+        return Payload(link=payload.link, html_content=html)
+
+
 # -- concrete implementations --
 
 
@@ -336,6 +449,33 @@ class IbaCocktailListParser(Parser):
             json_content=json.dumps(content),
             json_schema="iba-all-cocktails",
         )
+
+    def parse_v2(self, payload: Payload) -> Payload:
+        """Parse the `html_content` within `payload` using new logic."""
+        soup = BeautifulSoup(payload.html_content, features="html.parser")
+
+        # get the next page link if present
+        next_link = soup.css.select("a.next")
+        next_link = next_link[0].get("href") if len(next_link) > 0 else None
+
+        cocktails = [
+            {
+                "name": cocktail.find("h2").text,
+                "url": cocktail.find("a").get("href"),
+                "category": cocktail.find(
+                    "div", {"class": "cocktail-category"}
+                ).text.strip(),
+                "picture_url": cocktail.find("img").get("src"),
+            }
+            for cocktail in soup.css.select("div.cocktail")
+        ]
+
+        content = {
+            "cocktails": cocktails,
+            "links": {"next": next_link},
+        }
+
+        return Payload(link=payload.link, json_content=json.dumps(content))
 
 
 class IbaCocktailParser(Parser):
@@ -438,9 +578,14 @@ class IbaCocktailListTransformer(Transformer):
 
 
 @app.command()
-def run() -> None:
+def run_pipeline() -> None:
     """Run the scraping process."""
     config = {
+        "html_root_dir": "./html-data",
+        "json_root_dir": "./json-data",
+        "read_sequence": ["web", "file"],
+        "write_content": True,
+        "write_backup": True,
         "parser_map": {
             "iba-all-cocktails": "scraper.main.IbaCocktailListParser",
             "iba-cocktail": "scraper.main.IbaCocktailParser",
@@ -452,6 +597,20 @@ def run() -> None:
 
     pipeline = Pipeline(config)
     pipeline.run("https://www.example.com/all-cocktails", "iba-all-cocktails")
+
+
+@app.command()
+def test_components() -> None:
+    """Test the individual components of the pipeline."""
+    scraper = WebScraper("./data/html-data", write_content=True, write_backup=True)
+    payload = scraper.scrape(
+        Payload(link=Link("https://iba-world.com/cocktails/all-cocktails/", "not_used"))
+    )
+
+    parser = IbaCocktailListParser()
+    payload = parser.parse_v2(payload)
+
+    console.print(payload)
 
 
 if __name__ == "__main__":

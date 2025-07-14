@@ -6,7 +6,8 @@ A simple web scraping pipeline app.
 
 If not already installed, [install UV](https://docs.astral.sh/uv/getting-started/installation/).
 
-From the root of the project, run the following, to ensure that pre-commit checks run locally:
+From the root of the project, run the following, to ensure that pre-commit
+checks run locally:
 
 ```console
 uv run pre-commit install
@@ -31,15 +32,15 @@ uv run pre-commit install
 * Git pre-commit hooks via [pre-commit](https://pre-commit.com/)
 * Python linting and formatting via [Ruff](https://docs.astral.sh/ruff/)
 * Unit testing via [pytest](https://docs.pytest.org/en/stable/)
-    * Test coverage via [coverage.py](https://coverage.readthedocs.io/en/7.9.1/)
+  * Test coverage via [coverage.py](https://coverage.readthedocs.io/en/7.9.1/)
 * CLI via [Typer](https://typer.tiangolo.com/)
 * Console rendering via [Rich](https://github.com/Textualize/rich)
 * Logging via [Loguru](https://github.com/Delgan/loguru)
 * Task automation via [Make](https://makefiletutorial.com/)
-    * With a properly defined Makefile, it can also be [self-documenting](https://medium.com/aigent/makefiles-for-python-and-beyond-5cf28349bf05).
-
+  * With a properly defined Makefile, it can also be [self-documenting](https://medium.com/aigent/makefiles-for-python-and-beyond-5cf28349bf05).
 
 ## Footnotes
 
-This package was created with [Cookiecutter](https://github.com/audreyr/cookiecutter) and the
+This package was created with
+[Cookiecutter](https://github.com/audreyr/cookiecutter) and the
 [TODO](https://www.example.com/TODO) project template.

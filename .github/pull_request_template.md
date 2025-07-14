@@ -1,5 +1,8 @@
+<!-- markdownlint-disable MD041 -->
 <!---
-Provide a short summary in the title above, including the JIRA ticket number driving this change.
+Provide a short summary in the title above, including the JIRA ticket number
+driving this change.
+
 Examples of good PR titles:
 * ":sparkles: feature [IOP-1234] add support for such-and-such"
 * ":bug: fix [IOP-2345] resolve issue with so-and-so"
