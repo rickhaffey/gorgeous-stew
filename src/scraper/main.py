@@ -5,10 +5,9 @@ from loguru import logger
 from rich.console import Console
 from rich.logging import RichHandler
 
+from scraper.factories import ParserFactory, TransformerFactory
 from scraper.model import Link, Payload
-from scraper.parsers import ParserFactory
 from scraper.scrapers import MockScraper, WebScraper
-from scraper.transformers import TransformerFactory
 
 logger.configure(handlers=[{"sink": RichHandler(markup=True), "format": "{message}"}])
 app = typer.Typer()

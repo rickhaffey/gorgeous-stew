@@ -6,8 +6,7 @@ from abc import ABC, abstractmethod
 
 from bs4 import BeautifulSoup, PageElement, Tag
 
-from scraper.factories import FactoryBase
-from scraper.model import Link, Payload
+from scraper.model import Payload
 
 
 class Parser(ABC):
@@ -25,40 +24,6 @@ class Parser(ABC):
           A `Payload` object with the `json_content` populated with
           data from the parsed HTML.
         """
-
-
-class ParserFactory(FactoryBase):
-    """Factory class to instantiate HTML `Parser`s."""
-
-    def __init__(self, mapping: dict) -> None:
-        """
-        Instantiate the `ParserFactory`.
-
-        Args:
-          mapping: A `dict` containing mappings from page types to
-            the fully qualified class names of concrete parser classes
-            to be used in parsing each of those types of pages.
-            e.g.: `"demo_page": "scraper.parsers.DemoPageParser"`
-        """
-        self.mapping = mapping
-
-    def build(self, link: Link) -> Parser:
-        """
-        Build a `Parser` instance for the `page_type` in `link`.
-
-        Args:
-          link: a `Link` containing the `page_type` to be parsed.
-
-        Returns:
-          A `Parser` instance appropriate for parsing the specified
-          page type.
-        """
-        if link.page_type not in self.mapping:
-            msg = f"Unexpected page_type: {link.page_type}"
-            raise ValueError(msg)
-
-        mapped_name = self.mapping[link.page_type]
-        return self.instantiate(mapped_name)
 
 
 class SoupHelper:

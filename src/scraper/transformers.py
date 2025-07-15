@@ -3,7 +3,6 @@
 import json
 from abc import ABC, abstractmethod
 
-from scraper.factories import FactoryBase
 from scraper.model import Link, Payload
 
 
@@ -27,41 +26,6 @@ class Transformer(ABC):
           - A "terminal" content payload, requiring no further actions.
         """
         ...
-
-
-class TransformerFactory(FactoryBase):
-    """Factory class to instantiate JSON `Transformer`s."""
-
-    def __init__(self, mapping: dict) -> None:
-        """
-        Instantiate the `TransformerFactory`.
-
-        Args:
-          mapping: A `dict` containing mappings from json schema to
-            the fully qualified class names of concrete transformer
-            classes to be used in transforming each of those types
-            of json datasets.
-            e.g.: `"demo_schema": "scraper.transformers.DemoParser"`
-        """
-        self.mapping = mapping
-
-    def build(self, payload: Payload) -> Transformer:
-        """
-        Build a `Transformer` instance for the `json_schema` in `payload`.
-
-        Args:
-          payload: a `Payload` containing the `json_schema` to be transformed.
-
-        Returns:
-          A `Transformer` instance appropriate for transforming the specified
-          json schema.
-        """
-        if payload.json_schema not in self.mapping:
-            msg = f"Unexpected json_schema: {payload.json_schema}"
-            raise ValueError(msg)
-
-        mapped_name = self.mapping[payload.json_schema]
-        return self.instantiate(mapped_name)
 
 
 class IbaCocktailListTransformer(Transformer):
