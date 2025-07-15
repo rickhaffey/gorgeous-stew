@@ -10,11 +10,13 @@ dependencies = [
     "requests>=2.32.4",
     "rich>=14.0.0",
     "typer>=0.16.0",
+    "types-requests>=2.32.4.20250611",
 ]
 
 [dependency-groups]
 dev = [
     "coverage>=7.9.1",
+    "mypy>=1.17.0",
     "pre-commit>=4.2.0",
     "pytest>=8.4.0",
     "ruff>=0.12.1",

@@ -2,10 +2,12 @@
 
 import importlib
 import json
+import typing
 from abc import ABC, abstractmethod
+from typing import Any
 
 import typer
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, PageElement, Tag
 from loguru import logger
 from rich.console import Console
 from rich.logging import RichHandler
@@ -16,6 +18,45 @@ from scraper.scrapers import MockScraper, WebScraper
 logger.configure(handlers=[{"sink": RichHandler(markup=True), "format": "{message}"}])
 app = typer.Typer()
 console = Console()
+
+
+class SoupHelper:
+    """
+    Helper class for BeautifulSoup operations.
+
+    Provides methods to safely parse links and extract text from BS4 elements,
+    while satisfying type hints and ensuring safe operations.
+    """
+
+    @staticmethod
+    def safe_parse_text(element: PageElement | None) -> str:
+        """Safely parse text from a BeautifulSoup element."""
+        if element:
+            tag = typing.cast("Tag", element)
+            return tag.text
+
+        msg = "Element is None or empty."
+        raise ValueError(msg)
+
+    @staticmethod
+    def safe_parse_src(element: PageElement | None) -> str:
+        """Safely parse `src` from a BeautifulSoup element."""
+        if element:
+            tag = typing.cast("Tag", element)
+            return str(tag.get("src"))
+
+        msg = "Element is None or empty."
+        raise ValueError(msg)
+
+    @staticmethod
+    def safe_parse_link(link: PageElement | None) -> tuple[str, str]:
+        """Safely parse a link from a BeautifulSoup element."""
+        if link:
+            tag = typing.cast("Tag", link)
+            return tag.text, str(tag.get("href"))
+
+        msg = "Link is None or empty."
+        raise ValueError(msg)
 
 
 class Parser(ABC):
@@ -66,7 +107,7 @@ class FactoryBase:
     based on string names.
     """
 
-    def instantiate(self, fqn: str) -> any:
+    def instantiate(self, fqn: str) -> Any:  # noqa: ANN401
         """Instantiate an instance of a class dynamically based on the name provided."""
         name_components = fqn.split(".")
         class_name = name_components[-1]
@@ -241,20 +282,24 @@ class IbaCocktailListParser(Parser):
           }
           ```
         """  # noqa: E501
+        if payload.html_content is None:
+            msg = "Payload does not contain HTML content."
+            raise ValueError(msg)
+
         soup = BeautifulSoup(payload.html_content, "html.parser")
 
         # parse out the cocktails on the current page
         cocktails = []
         for item in soup.css.select("li.cocktail"):
             link = item.find("a")
-
-            cocktails.append({"name": link.text, "url": link.get("href")})
+            tag_text, tag_href = SoupHelper.safe_parse_link(link)
+            cocktails.append({"name": tag_text, "url": tag_href})
 
         # parse out the "next" link in the nav
-        next_link = soup.css.select("div.nav a.next")
+        raw_link = soup.css.select("div.nav a.next")
 
-        if next_link is not None and len(next_link) > 0:
-            next_link = next_link[0].get("href")
+        if raw_link is not None and len(raw_link) > 0:
+            next_link = raw_link[0].get("href")
         else:
             next_link = None
 
@@ -273,22 +318,37 @@ class IbaCocktailListParser(Parser):
 
     def parse_v2(self, payload: Payload) -> Payload:
         """Parse the `html_content` within `payload` using new logic."""
+        if payload.html_content is None:
+            msg = "Payload does not contain HTML content."
+            raise ValueError(msg)
+
         soup = BeautifulSoup(payload.html_content, features="html.parser")
 
         # get the next page link if present
-        next_link = soup.css.select("a.next")
-        next_link = next_link[0].get("href") if len(next_link) > 0 else None
+        raw_link = soup.css.select("a.next")
+
+        if raw_link is not None and len(raw_link) > 0:
+            next_link = raw_link[0].get("href")
+        else:
+            next_link = None
+
+        def _parse_cocktail(cocktail: Tag) -> dict[str, str]:
+            """Parse a single cocktail element into a dictionary."""
+            name = SoupHelper.safe_parse_text(cocktail.find("h2"))
+            _, url = SoupHelper.safe_parse_link(cocktail.find("a"))
+            category = SoupHelper.safe_parse_text(
+                cocktail.find("div", {"class": "cocktail-category"})
+            ).strip()
+            picture_url = SoupHelper.safe_parse_src(cocktail.find("img"))
+            return {
+                "name": name,
+                "url": url,
+                "category": category,
+                "picture_url": picture_url,
+            }
 
         cocktails = [
-            {
-                "name": cocktail.find("h2").text,
-                "url": cocktail.find("a").get("href"),
-                "category": cocktail.find(
-                    "div", {"class": "cocktail-category"}
-                ).text.strip(),
-                "picture_url": cocktail.find("img").get("src"),
-            }
-            for cocktail in soup.css.select("div.cocktail")
+            _parse_cocktail(cocktail) for cocktail in soup.css.select("div.cocktail")
         ]
 
         content = {
@@ -328,9 +388,13 @@ class IbaCocktailParser(Parser):
           }
           ```
         """
+        if payload.html_content is None:
+            msg = "Payload does not contain HTML content."
+            raise ValueError(msg)
+
         soup = BeautifulSoup(payload.html_content, "html.parser")
         content = soup.css.select("div.cocktail")[0]
-        name = content.find("h2").text
+        name = SoupHelper.safe_parse_text(content.find("h2"))
 
         ingredients = [
             item.text for item in content.css.select("ul.ingredients")[0].find_all("li")
@@ -381,6 +445,10 @@ class IbaCocktailListTransformer(Transformer):
           A `list` of `Payloads` containing one for each cocktail parsed
           from the page, as well as a payload to scrape the next page.
         """
+        if payload.json_content is None:
+            msg = "Payload does not contain JSON content."
+            raise ValueError(msg)
+
         obj = json.loads(payload.json_content)
 
         result = [
