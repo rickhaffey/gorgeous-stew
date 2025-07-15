@@ -3,11 +3,7 @@
 import importlib
 import json
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from datetime import UTC, datetime
-from pathlib import Path
 
-import requests
 import typer
 from bs4 import BeautifulSoup
 from loguru import logger
@@ -15,47 +11,12 @@ from rich.console import Console
 from rich.logging import RichHandler
 
 from scraper.demo.helper import html_samples
+from scraper.model import Link, Payload
+from scraper.scrapers import Scraper, WebScraper
 
 logger.configure(handlers=[{"sink": RichHandler(markup=True), "format": "{message}"}])
 app = typer.Typer()
 console = Console()
-
-
-@dataclass
-class Link:
-    """Represents a web page and the type of that page."""
-
-    url: str
-    page_type: str
-
-
-@dataclass
-class Payload:
-    """Represents a payload moving through a scraping pipeline."""
-
-    link: Link
-    html_content: str | None = None
-    json_content: str | None = None
-    json_schema: str | None = None
-    is_complete: bool = False
-
-
-class Scraper(ABC):
-    """Abstract base class defining the functionality supporting scraping."""
-
-    @abstractmethod
-    def scrape(self, payload: Payload) -> Payload:
-        """
-        Scrape the HTML content of resource at `payload.link`.
-
-        Args:
-          payload: A `Payload` containing the `link` to scrape.
-
-        Returns:
-          A `Payload` object with `html_content` populated with the scraped HTML.
-
-        """
-        ...
 
 
 class Parser(ABC):
@@ -244,116 +205,6 @@ class Pipeline:
 
         for payload in results:
             console.print(payload)
-
-
-class WebScraper(Scraper):
-    """Scrapes HTML content from a webpage."""
-
-    def __init__(
-        self,
-        html_root_dir: str,
-        *,
-        write_content: bool = True,
-        write_backup: bool = True,
-    ) -> None:
-        """
-        Instantiate a `WebScraper`.
-
-        Args:
-          html_root_dir: A string representing the path to where HTML content
-            should be stored.
-          write_content: A boolean flag indicating whether scraped content
-            should be written to local storage.
-          write_backup: A boolean flag indicating whether the process should
-            backup previously written files (rather than overwriting.)
-        """
-        self.html_root_dir = Path(html_root_dir)
-        self.write_content = write_content
-        self.write_backup = write_backup
-
-    def _sanitize_url(self, url: str) -> str:
-        """
-        Sanitize a url for usage as a filename.
-
-        - strip prefixes and suffixes
-        - replace special characters
-        """
-        result = url
-
-        for prefix in ["https://", "http://"]:
-            result = result.removeprefix(prefix)
-
-        result = result.removesuffix("/")
-
-        for c in ["/", ".", "_"]:
-            result = result.replace(c, "-")
-
-        return result
-
-    def _build_timestamp(self) -> str:
-        """Build a string representation of the current UTC timestamp."""
-        return datetime.now(tz=UTC).strftime("%Y%m%d%H%M%S")
-
-    def _build_raw_filename(
-        self, url: str, extension: str, *, is_backup: bool = False
-    ) -> Path:
-        """
-        Build a filename for the raw data from the provided `url`.
-
-        The default name of the file consists of a sanitized version of `url`
-        with the `extension` provided.
-
-        If `is_backup = True`, the name also includes a UTC timestamp and an
-        additional '.bak' extension.
-        """
-        result = self._sanitize_url(url)
-
-        if is_backup:
-            return Path(f"{result}.{extension}.{self._build_timestamp()}.bak")
-
-        return Path(f"{result}.{extension}")
-
-    def _backup_page_if_exists(self, url: str) -> bool:
-        """Check if file corresponding to `url` exists, and backup if found."""
-        filepath = self.html_root_dir / self._build_raw_filename(
-            url, "html", is_backup=False
-        )
-
-        if filepath.exists():
-            bak_filepath = self.html_root_dir / self._build_raw_filename(
-                url, "html", is_backup=True
-            )
-            filepath.replace(bak_filepath)
-            return True
-
-        return False
-
-    def scrape(self, payload: Payload) -> Payload:
-        """
-        Scrape HTML content from the webpage at `payload.link.url`.
-
-        If the scraper was configured with `write_content = True`, the HTML
-        content will be written to a file in `html_root_dir`.
-
-        If the scraper was configured with `write_backup = True`, a backup
-        of any previously written file containing this page's contents
-        will be created.  Otherwise, previous files will be overwritten.
-
-        Returns:
-          A `Payload` with HTML from the page in `html_content`.
-        """
-        html = requests.get(payload.link.url, timeout=10).text
-
-        if self.write_content:
-            if self.write_backup:
-                self._backup_page_if_exists(payload.link.url)
-
-            filepath = self.html_root_dir / self._build_raw_filename(
-                payload.link.url, "html", is_backup=False
-            )
-            filepath.write_text(html)
-
-        return Payload(link=payload.link, html_content=html)
 
 
 # -- concrete implementations --
