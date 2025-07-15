@@ -10,9 +10,8 @@ from loguru import logger
 from rich.console import Console
 from rich.logging import RichHandler
 
-from scraper.demo.helper import html_samples
 from scraper.model import Link, Payload
-from scraper.scrapers import Scraper, WebScraper
+from scraper.scrapers import MockScraper, WebScraper
 
 logger.configure(handlers=[{"sink": RichHandler(markup=True), "format": "{message}"}])
 app = typer.Typer()
@@ -208,35 +207,6 @@ class Pipeline:
 
 
 # -- concrete implementations --
-
-
-class MockScraper(Scraper):
-    """Mocks scraping of HTML based on the provided URLs."""
-
-    def scrape(self, payload: Payload) -> Payload:
-        """Return the mock scraped HTML."""
-        if "all-cocktails" in payload.link.url:
-            if payload.link.url == "https://www.example.com/all-cocktails":
-                html = html_samples["all-cocktails"]
-            elif payload.link.url == "https://www.example.com/all-cocktails/page/2":
-                html = html_samples["all-cocktails-pg2"]
-            elif payload.link.url == "https://www.example.com/all-cocktails/page/3":
-                html = html_samples["all-cocktails-pg3"]
-        elif "manhattan" in payload.link.url:
-            html = html_samples["manhattan"]
-        elif "margarita" in payload.link.url:
-            html = html_samples["margarita"]
-        elif "negroni" in payload.link.url:
-            html = html_samples["negroni"]
-        elif "old-fashioned" in payload.link.url:
-            html = html_samples["old-fashioned"]
-        elif "paper-plane" in payload.link.url:
-            html = html_samples["paper-plane"]
-        else:
-            msg = f"Unexpected URL: {payload.link.url}"
-            raise ValueError(msg)
-
-        return Payload(link=payload.link, html_content=html)
 
 
 class IbaCocktailListParser(Parser):
