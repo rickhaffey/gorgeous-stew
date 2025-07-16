@@ -1,5 +1,7 @@
 """Pipeline for scraping web content."""
 
+from loguru import logger
+
 from scraper.factories import ParserFactory, TransformerFactory
 from scraper.model import Link, Payload
 from scraper.scrapers import MockScraper
@@ -16,11 +18,21 @@ class Pipeline:
           config: A `dict` containing mappings for `Parser` and
             `Transformer` instantiation.
         """
+        logger.info("Initializing Pipeline with config: {config}", config=config)
         self._scraper = MockScraper()
         self._parser_factory = ParserFactory(config["parser_map"])
         self._transformer_factory = TransformerFactory(config["transformer_map"])
 
     def _handle_payload(self, payload: Payload) -> list[Payload]:
+        """
+        Recursively handle a `Payload`.
+
+        Args:
+            payload: The `Payload` to handle.
+
+        Returns:
+            A list of `Payload` instances resulting from processing the input `Payload`.
+        """
         # base case: terminal payload handling
         if payload.is_complete:
             return [payload]
@@ -57,6 +69,11 @@ class Pipeline:
           page_type: The page type of the URL.  This is used to decide which
             `Parser`s and `Transformer`s to use in processing the page.
         """
+        logger.info(
+            f"Running pipeline for URL: {url} of page type: {page_type}",
+            url=url,
+            page_type=page_type,
+        )
         link = Link(url=url, page_type=page_type)
 
         return self._handle_payload(Payload(link=link))

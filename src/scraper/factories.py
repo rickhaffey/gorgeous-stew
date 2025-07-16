@@ -3,6 +3,8 @@
 import importlib
 from typing import Any
 
+from loguru import logger
+
 from scraper.model import Link, Payload
 from scraper.parsers import Parser
 from scraper.transformers import Transformer
@@ -16,9 +18,20 @@ class FactoryBase:
     based on string names.
     """
 
-    def instantiate(self, fqn: str) -> Any:  # noqa: ANN401
-        """Instantiate an instance of a class dynamically based on the name provided."""
-        name_components = fqn.split(".")
+    def instantiate(self, class_name: str) -> Any:  # noqa: ANN401
+        """
+        Instantiate an instance of a class dynamically based on the name provided.
+
+        Args:
+            class_name: A string representing the fully qualified name of the class
+            to be instantiated, e.g., "scraper.parsers.DemoPageParser".
+
+        Returns:
+            An instance of the class specified by `class_name`.  Because
+            of the dynamic nature of this method, the return type is `Any`.
+        """
+        logger.info("Instantiating class: {class_name}", class_name=class_name)
+        name_components = class_name.split(".")
         class_name = name_components[-1]
         module_name = ".".join(name_components[:-1])
 
@@ -57,6 +70,9 @@ class ParserFactory(FactoryBase):
             msg = f"Unexpected page_type: {link.page_type}"
             raise ValueError(msg)
 
+        logger.info(
+            "Building parser for page_type: {page_type}", page_type=link.page_type
+        )
         mapped_name = self.mapping[link.page_type]
         return self.instantiate(mapped_name)
 
@@ -92,5 +108,9 @@ class TransformerFactory(FactoryBase):
             msg = f"Unexpected json_schema: {payload.json_schema}"
             raise ValueError(msg)
 
+        logger.info(
+            "Building transformer for json_schema: {json_schema}",
+            json_schema=payload.json_schema,
+        )
         mapped_name = self.mapping[payload.json_schema]
         return self.instantiate(mapped_name)

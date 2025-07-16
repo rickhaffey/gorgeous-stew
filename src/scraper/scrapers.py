@@ -5,6 +5,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
+from loguru import logger
 
 from scraper.mocks import html_samples
 from scraper.model import Payload
@@ -88,12 +89,27 @@ class WebScraper(Scraper):
         If `is_backup = True`, the name also includes a UTC timestamp and an
         additional '.bak' extension.
         """
-        result = self._sanitize_url(url)
+        file_name = self._sanitize_url(url)
 
-        if is_backup:
-            return Path(f"{result}.{extension}.{self._build_timestamp()}.bak")
+        file_name = (
+            f"{file_name}.{extension}.{self._build_timestamp()}.bak"
+            if is_backup
+            else f"{file_name}.{extension}"
+        )
 
-        return Path(f"{result}.{extension}")
+        log_msg_template = (
+            "Building raw filename for URL: {url} with extension: {extension} "
+            " (is_backup={is_backup}), resulting filename: {file_name}"
+        )
+        logger.info(
+            log_msg_template,
+            url=url,
+            extension=extension,
+            is_backup=is_backup,
+            file_name=file_name,
+        )
+
+        return Path(file_name)
 
     def _backup_page_if_exists(self, url: str) -> bool:
         """Check if file corresponding to `url` exists, and backup if found."""
@@ -104,6 +120,11 @@ class WebScraper(Scraper):
         if filepath.exists():
             bak_filepath = self.html_root_dir / self._build_raw_filename(
                 url, "html", is_backup=True
+            )
+            logger.info(
+                "Backing up existing file: {filepath} to {bak_filepath}",
+                filepath=filepath,
+                bak_filepath=bak_filepath,
             )
             filepath.replace(bak_filepath)
             return True
@@ -121,17 +142,28 @@ class WebScraper(Scraper):
         of any previously written file containing this page's contents
         will be created.  Otherwise, previous files will be overwritten.
 
+        Args:
+            payload: A `Payload` containing the `link` to scrape.
+
         Returns:
           A `Payload` with HTML from the page in `html_content`.
         """
+        logger.info("Scraping HTML content for URL: {url}", url=payload.link.url)
         html = requests.get(payload.link.url, timeout=10).text
 
         if self.write_content:
             if self.write_backup:
+                logger.info(
+                    "Backing up existing HTML file for URL: {url}",
+                    url=payload.link.url,
+                )
                 self._backup_page_if_exists(payload.link.url)
 
             filepath = self.html_root_dir / self._build_raw_filename(
                 payload.link.url, "html", is_backup=False
+            )
+            logger.info(
+                "Writing scraped HTML content to file: {filepath}", filepath=filepath
             )
             filepath.write_text(html)
 
@@ -143,6 +175,7 @@ class MockScraper(Scraper):
 
     def scrape(self, payload: Payload) -> Payload:
         """Return the mock scraped HTML."""
+        logger.info("Mock scraping HTML content for URL: {url}", url=payload.link.url)
         if "all-cocktails" in payload.link.url:
             if payload.link.url == "https://www.example.com/all-cocktails":
                 html = html_samples["all-cocktails"]

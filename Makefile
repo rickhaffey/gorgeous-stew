@@ -4,6 +4,12 @@ test:  ## Run all tests
 coverage:  ## Display a test coverage report
 	uv run coverage report -m
 
+run-pipeline:  ## Run the scraping pipeline
+	uv run src/scraper/main.py run-pipeline
+
+run-components:  ## Test a single component of the scraping pipeline
+	uv run src/scraper/main.py test-components
+
 demo:  ## Run a demo of the application (main.py)
 	uv run src/scraper/main.py --help
 	uv run src/scraper/main.py hello --name "$$(whoami)"
@@ -17,6 +23,9 @@ fix:  ## Fix all (fixable) linter items via ruff
 
 format:  ## Run code formatting via ruff
 	uv run ruff format .
+
+typecheck:  ## Run type checking via mypy
+	uv run mypy .
 
 precommit:  ## Run the pre-commit process (against changes staged for git commit)
 	uv run pre-commit run
