@@ -5,6 +5,7 @@ import typing
 from abc import ABC, abstractmethod
 
 from bs4 import BeautifulSoup, PageElement, Tag
+from loguru import logger
 
 from scraper.model import Payload
 
@@ -101,6 +102,7 @@ class IbaCocktailListParser(Parser):
             msg = "Payload does not contain HTML content."
             raise ValueError(msg)
 
+        logger.info("Parsing IBA Cocktail List page: {url}", url=payload.link.url)
         soup = BeautifulSoup(payload.html_content, "html.parser")
 
         # parse out the cocktails on the current page
@@ -132,11 +134,35 @@ class IbaCocktailListParser(Parser):
         )
 
     def parse_v2(self, payload: Payload) -> Payload:
-        """Parse the `html_content` within `payload` using new logic."""
+        """
+        Parse the `html_content` within `payload`.
+
+        Args:
+          payload: A `Payload` containing the HTML content of an
+          IBA Cocktail List page.
+
+        Returns:
+          A `Payload` containing the JSON content parsed from the
+          page HTML.
+
+          An example of the JSON produced:
+          ```
+          {
+            "cocktails": [
+              { "name": "Martini", "url": "https://iba-world.com/iba-cocktail/martini/" },
+              ...
+            ],
+            "links": {
+               "next": "https://iba-world.com/cocktails/all-cocktails/page/2"
+             }
+          }
+          ```
+        """  # noqa: E501
         if payload.html_content is None:
             msg = "Payload does not contain HTML content."
             raise ValueError(msg)
 
+        logger.info("Parsing IBA Cocktail List page: {url}", url=payload.link.url)
         soup = BeautifulSoup(payload.html_content, features="html.parser")
 
         # get the next page link if present
@@ -207,6 +233,7 @@ class IbaCocktailParser(Parser):
             msg = "Payload does not contain HTML content."
             raise ValueError(msg)
 
+        logger.info("Parsing IBA Cocktail page: {url}", url=payload.link.url)
         soup = BeautifulSoup(payload.html_content, "html.parser")
         content = soup.css.select("div.cocktail")[0]
         name = SoupHelper.safe_parse_text(content.find("h2"))
