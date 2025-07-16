@@ -52,6 +52,10 @@ class Pipeline:
         if payload.json_content is not None:
             transformer = self._transformer_factory.build(payload)
             next_payloads = transformer.transform(payload)
+
+            logger.info(
+                "Recursively handling {n} transformed payloads", n=len(next_payloads)
+            )
             result = []
             for next_payload in next_payloads:
                 result.extend(self._handle_payload(next_payload))

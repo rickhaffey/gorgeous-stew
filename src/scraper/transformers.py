@@ -57,10 +57,7 @@ class IbaCocktailListTransformer(Transformer):
             msg = "Payload does not contain JSON content."
             raise ValueError(msg)
 
-        logger.info(
-            "Transforming IBA Cocktail List payload for JSON schema: {json_schema}",
-            json_schema=payload.json_schema,
-        )
+        logger.info("Transforming IBA Cocktail List payload")
         obj = json.loads(payload.json_content)
 
         result = [
