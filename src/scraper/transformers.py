@@ -52,6 +52,9 @@ class IbaCocktailListTransformer(Transformer):
         Returns:
           A `list` of `Payloads` containing one for each cocktail parsed
           from the page, as well as a payload to scrape the next page.
+
+        Raises:
+            ValueError: If the `payload` does not contain valid JSON content.
         """
         if payload.json_content is None:
             msg = "Payload does not contain JSON content."

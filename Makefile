@@ -27,6 +27,9 @@ format:  ## Run code formatting via ruff
 typecheck:  ## Run type checking via mypy
 	uv run mypy .
 
+pydoclint:  ## Run the pydoclint tool to check docstrings
+	uv run pydoclint --style=google --arg-type-hints-in-docstring=False --check-return-types=False --allow-init-docstring=True ./src
+
 precommit:  ## Run the pre-commit process (against changes staged for git commit)
 	uv run pre-commit run
 

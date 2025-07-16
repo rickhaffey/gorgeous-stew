@@ -24,7 +24,7 @@ class FactoryBase:
 
         Args:
             class_name: A string representing the fully qualified name of the class
-            to be instantiated, e.g., "scraper.parsers.DemoPageParser".
+              to be instantiated, e.g., "scraper.parsers.DemoPageParser".
 
         Returns:
             An instance of the class specified by `class_name`.  Because
@@ -65,6 +65,9 @@ class ParserFactory(FactoryBase):
         Returns:
           A `Parser` instance appropriate for parsing the specified
           page type.
+
+        Raises:
+            ValueError: If the `page_type` in `link` is not found in the mapping.
         """
         if link.page_type not in self.mapping:
             msg = f"Unexpected page_type: {link.page_type}"
@@ -103,6 +106,9 @@ class TransformerFactory(FactoryBase):
         Returns:
           A `Transformer` instance appropriate for transforming the specified
           json schema.
+
+        Raises:
+            ValueError: If the `json_schema` in `payload` is not found in the mapping.
         """
         if payload.json_schema not in self.mapping:
             msg = f"Unexpected json_schema: {payload.json_schema}"

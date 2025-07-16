@@ -32,6 +32,10 @@ class Pipeline:
 
         Returns:
             A list of `Payload` instances resulting from processing the input `Payload`.
+
+        Raises:
+            ValueError: If the `Payload` is in an unexpected state or cannot
+              be processed.
         """
         # base case: terminal payload handling
         if payload.is_complete:
@@ -72,6 +76,9 @@ class Pipeline:
           url: The entrypoint URL to start scraping against.
           page_type: The page type of the URL.  This is used to decide which
             `Parser`s and `Transformer`s to use in processing the page.
+
+        Returns:
+            A list of `Payload` instances resulting from processing the input URL.
         """
         logger.info(
             f"Running pipeline for URL: {url} of page type: {page_type}",

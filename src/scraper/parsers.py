@@ -79,7 +79,7 @@ class IbaCocktailListParser(Parser):
 
         Args:
           payload: A `Payload` containing the HTML content of an
-          IBA Cocktail List page.
+            IBA Cocktail List page.
 
         Returns:
           A `Payload` containing the JSON content parsed from the
@@ -97,6 +97,8 @@ class IbaCocktailListParser(Parser):
              }
           }
           ```
+        Raises:
+            ValueError: If the payload does not contain HTML content.
         """  # noqa: E501
         if payload.html_content is None:
             msg = "Payload does not contain HTML content."
@@ -139,7 +141,7 @@ class IbaCocktailListParser(Parser):
 
         Args:
           payload: A `Payload` containing the HTML content of an
-          IBA Cocktail List page.
+            IBA Cocktail List page.
 
         Returns:
           A `Payload` containing the JSON content parsed from the
@@ -157,6 +159,9 @@ class IbaCocktailListParser(Parser):
              }
           }
           ```
+
+        Raises:
+            ValueError: If the payload does not contain HTML content.
         """  # noqa: E501
         if payload.html_content is None:
             msg = "Payload does not contain HTML content."
@@ -213,7 +218,7 @@ class IbaCocktailParser(Parser):
 
         Args:
           payload: A `Payload` containing the HTML content of an
-          IBA Cocktail page.
+            IBA Cocktail page.
 
         Returns:
           A `Payload` containing the JSON content parsed from the
@@ -228,6 +233,9 @@ class IbaCocktailParser(Parser):
             "garnish": ""
           }
           ```
+
+        Raises:
+            ValueError: If the payload does not contain HTML content.
         """
         if payload.html_content is None:
             msg = "Payload does not contain HTML content."
