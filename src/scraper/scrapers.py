@@ -1,12 +1,12 @@
 """Web scraping functionality for extracting HTML content from webpages."""
 
 from abc import ABC, abstractmethod
-from datetime import UTC, datetime
 from pathlib import Path
 
 import requests
 from loguru import logger
 
+from scraper.fileutils import build_raw_filepath
 from scraper.mocks import html_samples
 from scraper.model import Payload
 
@@ -27,63 +27,6 @@ class Scraper(ABC):
 
         """
         ...
-
-    def _sanitize_url(self, url: str) -> str:
-        """
-        Sanitize a url for usage as a filename.
-
-        - strip prefixes and suffixes
-        - replace special characters
-        """
-        result = url
-
-        for prefix in ["https://", "http://"]:
-            result = result.removeprefix(prefix)
-
-        result = result.removesuffix("/")
-
-        for c in ["/", ".", "_"]:
-            result = result.replace(c, "-")
-
-        return result
-
-    def _build_timestamp(self) -> str:
-        """Build a string representation of the current UTC timestamp."""
-        return datetime.now(tz=UTC).strftime("%Y%m%d%H%M%S")
-
-    def _build_raw_filename(
-        self, url: str, extension: str, *, is_backup: bool = False
-    ) -> Path:
-        """
-        Build a filename for the raw data from the provided `url`.
-
-        The default name of the file consists of a sanitized version of `url`
-        with the `extension` provided.
-
-        If `is_backup = True`, the name also includes a UTC timestamp and an
-        additional '.bak' extension.
-        """
-        file_name = self._sanitize_url(url)
-
-        file_name = (
-            f"{file_name}.{extension}.{self._build_timestamp()}.bak"
-            if is_backup
-            else f"{file_name}.{extension}"
-        )
-
-        log_msg_template = (
-            "Building raw filename for URL: {url} with extension: {extension} "
-            " (is_backup={is_backup}), resulting filename: {file_name}"
-        )
-        logger.info(
-            log_msg_template,
-            url=url,
-            extension=extension,
-            is_backup=is_backup,
-            file_name=file_name,
-        )
-
-        return Path(file_name)
 
 
 class WebScraper(Scraper):
@@ -113,12 +56,10 @@ class WebScraper(Scraper):
 
     def _backup_page_if_exists(self, url: str) -> bool:
         """Check if file corresponding to `url` exists, and backup if found."""
-        filepath = self.html_root_dir / self._build_raw_filename(
-            url, "html", is_backup=False
-        )
+        filepath = self.html_root_dir / build_raw_filepath(url, "html", is_backup=False)
 
         if filepath.exists():
-            bak_filepath = self.html_root_dir / self._build_raw_filename(
+            bak_filepath = self.html_root_dir / build_raw_filepath(
                 url, "html", is_backup=True
             )
             logger.info(
@@ -159,7 +100,7 @@ class WebScraper(Scraper):
                 )
                 self._backup_page_if_exists(payload.link.url)
 
-            filepath = self.html_root_dir / self._build_raw_filename(
+            filepath = self.html_root_dir / build_raw_filepath(
                 payload.link.url, "html", is_backup=False
             )
             logger.info(
@@ -200,7 +141,7 @@ class FileScraper(Scraper):
         logger.info(
             "Scraping HTML content (via file) for URL: {url}", url=payload.link.url
         )
-        filepath = self.html_root_dir / self._build_raw_filename(
+        filepath = self.html_root_dir / build_raw_filepath(
             payload.link.url, "html", is_backup=False
         )
 

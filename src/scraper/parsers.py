@@ -3,15 +3,19 @@
 import json
 import typing
 from abc import ABC, abstractmethod
+from pathlib import Path
 
 from bs4 import BeautifulSoup, PageElement, Tag
 from loguru import logger
 
+from scraper.fileutils import build_raw_filepath
 from scraper.model import Payload
 
 
 class Parser(ABC):
     """Abstract base class defining the functionality supporting parsing."""
+
+    json_root_dir: str | None = None
 
     @abstractmethod
     def parse(self, payload: Payload) -> Payload:
@@ -73,6 +77,18 @@ class IbaCocktailListParser(Parser):
     https://iba-world.com/cocktails/all-cocktails/
     """
 
+    def __init__(self, json_root_dir: str | None = None) -> None:
+        """
+        Instantiate a new `IbaCocktailListParser`.
+
+        Args:
+          json_root_dir: Optional string representing the directory where
+            JSON files should be written. If provided, the parser will
+            use this directory to write parsed content as JSON files.
+            Default is `None`, meaning no JSON writing will occur.
+        """
+        self.json_root_dir = json_root_dir
+
     def parse(self, payload: Payload) -> Payload:
         """
         Parse the `html_content` within `payload`.
@@ -129,9 +145,21 @@ class IbaCocktailListParser(Parser):
             },
         }
 
+        json_content = json.dumps(content)
+
+        # if a json_root_dir is provided, write the content to a file
+        if self.json_root_dir:
+            filepath = Path(self.json_root_dir) / build_raw_filepath(
+                payload.link.url, "json", tag="iba-all-cocktails", is_backup=False
+            )
+            logger.info(
+                "Writing parsed JSON content to file: {filepath}", filepath=filepath
+            )
+            filepath.write_text(json_content)
+
         return Payload(
             link=payload.link,
-            json_content=json.dumps(content),
+            json_content=json_content,
             json_schema="iba-all-cocktails",
         )
 
@@ -202,7 +230,19 @@ class IbaCocktailListParser(Parser):
             "links": {"next": next_link},
         }
 
-        return Payload(link=payload.link, json_content=json.dumps(content))
+        json_content = json.dumps(content)
+
+        # if a json_root_dir is provided, write the content to a file
+        if self.json_root_dir:
+            filepath = Path(self.json_root_dir) / build_raw_filepath(
+                payload.link.url, "json", tag="iba-all-cocktails", is_backup=False
+            )
+            logger.info(
+                "Writing parsed JSON content to file: {filepath}", filepath=filepath
+            )
+            filepath.write_text(json_content)
+
+        return Payload(link=payload.link, json_content=json_content)
 
 
 class IbaCocktailParser(Parser):
@@ -211,6 +251,18 @@ class IbaCocktailParser(Parser):
 
     e.g. https://iba-world.com/iba-cocktail/aviation/
     """
+
+    def __init__(self, json_root_dir: str | None = None) -> None:
+        """
+        Instantiate a new `IbaCocktailListParser`.
+
+        Args:
+          json_root_dir: Optional string representing the directory where
+            JSON files should be written. If provided, the parser will
+            use this directory to write parsed content as JSON files.
+            Default is `None`, meaning no JSON writing will occur.
+        """
+        self.json_root_dir = json_root_dir
 
     def parse(self, payload: Payload) -> Payload:
         """
@@ -264,9 +316,23 @@ class IbaCocktailParser(Parser):
             "garnish": garnish,
         }
 
+        json_content = json.dumps(cocktail)
+        logger.debug(json_content)
+        logger.debug(self.json_root_dir)
+
+        # if a json_root_dir is provided, write the content to a file
+        if self.json_root_dir:
+            filepath = Path(self.json_root_dir) / build_raw_filepath(
+                payload.link.url, "json", tag="iba-cocktail", is_backup=False
+            )
+            logger.info(
+                "Writing parsed JSON content to file: {filepath}", filepath=filepath
+            )
+            filepath.write_text(json_content)
+
         return Payload(
             link=payload.link,
-            json_content=json.dumps(cocktail),
+            json_content=json_content,
             json_schema="iba-cocktail",
             is_complete=True,
         )

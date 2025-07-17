@@ -18,13 +18,15 @@ class FactoryBase:
     based on string names.
     """
 
-    def instantiate(self, class_name: str) -> Any:  # noqa: ANN401
+    def instantiate(self, class_name: str, *args, **kwargs) -> Any:  # noqa: ANN002, ANN003, ANN401
         """
         Instantiate an instance of a class dynamically based on the name provided.
 
         Args:
             class_name: A string representing the fully qualified name of the class
               to be instantiated, e.g., "scraper.parsers.DemoPageParser".
+            *args: Positional arguments to be passed to the class constructor.
+            **kwargs: Keyword arguments to be passed to the class constructor.
 
         Returns:
             An instance of the class specified by `class_name`.  Because
@@ -37,13 +39,13 @@ class FactoryBase:
 
         module = importlib.import_module(module_name)
         class_ = getattr(module, class_name)
-        return class_()
+        return class_(*args, **kwargs)
 
 
 class ParserFactory(FactoryBase):
     """Factory class to instantiate HTML `Parser`s."""
 
-    def __init__(self, mapping: dict) -> None:
+    def __init__(self, mapping: dict, json_dir: str | None = None) -> None:
         """
         Instantiate the `ParserFactory`.
 
@@ -52,8 +54,13 @@ class ParserFactory(FactoryBase):
             the fully qualified class names of concrete parser classes
             to be used in parsing each of those types of pages.
             e.g.: `"demo_page": "scraper.parsers.DemoPageParser"`
+          json_dir: Optional string representing the directory where
+            JSON files should be written.  If provided, the parsers will
+            use this directory to write parsed content as JSON files.
+            Default is `None`, meaning no JSON writing will occur.
         """
         self.mapping = mapping
+        self.json_dir = json_dir
 
     def build(self, link: Link) -> Parser:
         """
@@ -77,7 +84,7 @@ class ParserFactory(FactoryBase):
             "Building parser for page_type: {page_type}", page_type=link.page_type
         )
         mapped_name = self.mapping[link.page_type]
-        return self.instantiate(mapped_name)
+        return self.instantiate(mapped_name, self.json_dir)
 
 
 class TransformerFactory(FactoryBase):

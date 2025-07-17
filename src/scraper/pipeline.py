@@ -19,15 +19,15 @@ class Pipeline:
             `Transformer` instantiation.
         """
         logger.info("Initializing Pipeline with config: {config}", config=config)
-        self._scraper = MockScraper()
-        self._parser_factory = ParserFactory(config["parser_map"])
-        self._transformer_factory = TransformerFactory(config["transformer_map"])
         self._html_root_dir = config.get("html_root_dir", "./html-data")
+        self._json_root_dir = config.get("json_root_dir", "./json-data")
         self._read_sequence = config.get("read_sequence", ["file"])
         self._write_content = config.get("write_content", True)
         self._write_backup = config.get("write_backup", True)
 
         self._scrapers: dict[str, Scraper] = self._build_scrapers()
+        self._parser_factory = ParserFactory(config["parser_map"], self._json_root_dir)
+        self._transformer_factory = TransformerFactory(config["transformer_map"])
 
     def _build_scrapers(self) -> dict[str, Scraper]:
         """

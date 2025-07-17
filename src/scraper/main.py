@@ -16,8 +16,8 @@ def run_pipeline() -> None:
     from scraper.pipeline import Pipeline  # noqa: PLC0415
 
     config = {
-        "html_root_dir": "./html-data",
-        "json_root_dir": "./json-data",
+        "html_root_dir": "./data/html-data",
+        "json_root_dir": "./data/json-data",
         "read_sequence": ["file", "mock"],
         "write_content": True,
         "write_backup": True,
@@ -42,10 +42,10 @@ def test_components() -> None:
     """Test the individual components of the pipeline."""
     from scraper.model import Link, Payload  # noqa: PLC0415
     from scraper.parsers import IbaCocktailListParser  # noqa: PLC0415
-    from scraper.scrapers import FileScraper  # noqa: PLC0415
+    from scraper.scrapers import FileScraper, WebScraper  # noqa: PLC0415, F401
 
-    # scraper = WebScraper("./data/html-data", write_content=True, write_backup=True)  # noqa: ERA001, E501
-    scraper = FileScraper("./data/html-data")
+    # scraper = WebScraper("./data/html-data", write_content=True, write_backup=True)  # noqa: ERA001, E501, RUF100
+    scraper = FileScraper("./data/html-data")  # noqa: ERA001, E501, RUF100
     payload = scraper.scrape(
         Payload(link=Link("https://iba-world.com/cocktails/all-cocktails/", "not_used"))
     )
