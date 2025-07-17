@@ -31,6 +31,10 @@ ignore = [
     "D212",  # multi-line-summary-second-line (pydocstyle)
     "COM812",  # missing-trailing-comma (flake8-commas); handled by ruff format
     "D203",   # incorrect-blank-line-before-class (pydocstyle); handled by ruff format
+
+    "TD002",  # missing author in TODO
+    "TD003",  # missing issue link in TODO
+    "FIX002",  # line contains TODO
 ]
 
 [tool.ruff.lint.pydocstyle]

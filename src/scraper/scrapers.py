@@ -28,32 +28,6 @@ class Scraper(ABC):
         """
         ...
 
-
-class WebScraper(Scraper):
-    """Scrapes HTML content from a webpage."""
-
-    def __init__(
-        self,
-        html_root_dir: str,
-        *,
-        write_content: bool = True,
-        write_backup: bool = True,
-    ) -> None:
-        """
-        Instantiate a `WebScraper`.
-
-        Args:
-          html_root_dir: A string representing the path to where HTML content
-            should be stored.
-          write_content: A boolean flag indicating whether scraped content
-            should be written to local storage.
-          write_backup: A boolean flag indicating whether the process should
-            backup previously written files (rather than overwriting.)
-        """
-        self.html_root_dir = Path(html_root_dir)
-        self.write_content = write_content
-        self.write_backup = write_backup
-
     def _sanitize_url(self, url: str) -> str:
         """
         Sanitize a url for usage as a filename.
@@ -111,6 +85,32 @@ class WebScraper(Scraper):
 
         return Path(file_name)
 
+
+class WebScraper(Scraper):
+    """Scrapes HTML content from a webpage."""
+
+    def __init__(
+        self,
+        html_root_dir: str,
+        *,
+        write_content: bool = True,
+        write_backup: bool = True,
+    ) -> None:
+        """
+        Instantiate a `WebScraper`.
+
+        Args:
+          html_root_dir: A string representing the path to where HTML content
+            should be stored.
+          write_content: A boolean flag indicating whether scraped content
+            should be written to local storage.
+          write_backup: A boolean flag indicating whether the process should
+            backup previously written files (rather than overwriting.)
+        """
+        self.html_root_dir = Path(html_root_dir)
+        self.write_content = write_content
+        self.write_backup = write_backup
+
     def _backup_page_if_exists(self, url: str) -> bool:
         """Check if file corresponding to `url` exists, and backup if found."""
         filepath = self.html_root_dir / self._build_raw_filename(
@@ -166,6 +166,52 @@ class WebScraper(Scraper):
                 "Writing scraped HTML content to file: {filepath}", filepath=filepath
             )
             filepath.write_text(html)
+
+        return Payload(link=payload.link, html_content=html)
+
+
+class FileScraper(Scraper):
+    """Mocks scraping by loading HTML from a file."""
+
+    def __init__(
+        self,
+        html_root_dir: str,
+    ) -> None:
+        """
+        Instantiate a `FileScraper`.
+
+        Args:
+          html_root_dir: A string representing the path to where HTML content
+            is stored.
+        """
+        self.html_root_dir = Path(html_root_dir)
+
+    def scrape(self, payload: Payload) -> Payload:
+        """
+        Scrape HTML content from the file behind `payload.link.url`.
+
+        Args:
+            payload: A `Payload` containing the `link` to scrape.
+
+        Returns:
+          A `Payload` with HTML from the file in `html_content`.
+          If the file does not exist, `html_content` will be `None`.
+        """
+        logger.info(
+            "Scraping HTML content (via file) for URL: {url}", url=payload.link.url
+        )
+        filepath = self.html_root_dir / self._build_raw_filename(
+            payload.link.url, "html", is_backup=False
+        )
+
+        # first check if the file exists
+        if not filepath.exists():
+            msg = f"File not found for URL {payload.link.url} at: {filepath}"
+            logger.info(msg)
+            return Payload(link=payload.link, html_content=None)
+
+        logger.info("Reading HTML content from file: {filepath}", filepath=filepath)
+        html = Path(filepath).read_text()
 
         return Payload(link=payload.link, html_content=html)
 
