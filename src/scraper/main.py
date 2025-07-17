@@ -18,7 +18,7 @@ def run_pipeline() -> None:
     config = {
         "html_root_dir": "./data/html-data",
         "json_root_dir": "./data/json-data",
-        "read_sequence": ["file", "mock"],
+        "read_sequence": ["file"],
         "write_content": True,
         "write_backup": True,
         "parser_map": {

@@ -317,8 +317,6 @@ class IbaCocktailParser(Parser):
         }
 
         json_content = json.dumps(cocktail)
-        logger.debug(json_content)
-        logger.debug(self.json_root_dir)
 
         # if a json_root_dir is provided, write the content to a file
         if self.json_root_dir:

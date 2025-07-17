@@ -7,7 +7,6 @@ import requests
 from loguru import logger
 
 from scraper.fileutils import build_raw_filepath
-from scraper.mocks import html_samples
 from scraper.model import Payload
 
 
@@ -153,35 +152,5 @@ class FileScraper(Scraper):
 
         logger.info("Reading HTML content from file: {filepath}", filepath=filepath)
         html = Path(filepath).read_text()
-
-        return Payload(link=payload.link, html_content=html)
-
-
-class MockScraper(Scraper):
-    """Mocks scraping of HTML based on the provided URLs."""
-
-    def scrape(self, payload: Payload) -> Payload:
-        """Return the mock scraped HTML."""
-        logger.info("Mock scraping HTML content for URL: {url}", url=payload.link.url)
-        if "all-cocktails" in payload.link.url:
-            if payload.link.url == "https://www.example.com/all-cocktails":
-                html = html_samples["all-cocktails"]
-            elif payload.link.url == "https://www.example.com/all-cocktails/page/2":
-                html = html_samples["all-cocktails-pg2"]
-            elif payload.link.url == "https://www.example.com/all-cocktails/page/3":
-                html = html_samples["all-cocktails-pg3"]
-        elif "manhattan" in payload.link.url:
-            html = html_samples["manhattan"]
-        elif "margarita" in payload.link.url:
-            html = html_samples["margarita"]
-        elif "negroni" in payload.link.url:
-            html = html_samples["negroni"]
-        elif "old-fashioned" in payload.link.url:
-            html = html_samples["old-fashioned"]
-        elif "paper-plane" in payload.link.url:
-            html = html_samples["paper-plane"]
-        else:
-            msg = f"Unexpected URL: {payload.link.url}"
-            raise ValueError(msg)
 
         return Payload(link=payload.link, html_content=html)

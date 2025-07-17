@@ -4,7 +4,7 @@ from loguru import logger
 
 from scraper.factories import ParserFactory, TransformerFactory
 from scraper.model import Link, Payload
-from scraper.scrapers import FileScraper, MockScraper, Scraper, WebScraper
+from scraper.scrapers import FileScraper, Scraper, WebScraper
 
 
 class Pipeline:
@@ -37,7 +37,6 @@ class Pipeline:
             A dictionary mapping read sources to their respective `Scraper` instances.
             - "file": `FileScraper`
             - "web": `WebScraper`
-            - "mock": `MockScraper`
         """
         scrapers: dict[str, Scraper] = {}
 
@@ -56,15 +55,12 @@ class Pipeline:
                     write_backup=self._write_backup,
                 )
 
-            elif read_source == "mock":
-                scrapers[read_source] = MockScraper()
-
             else:
                 # TODO: Is ValueError the right exception here?
                 #   Should this have been checked when pipeline was instantiated?
                 msg = (
                     f"Unknown read source: {read_source}. Supported sources "
-                    "are 'file', 'web', and 'mock'."
+                    "are 'file' and 'web'."
                 )
                 raise ValueError(msg)
 
