@@ -50,7 +50,7 @@ def test_components() -> None:
         Payload(link=Link("https://iba-world.com/cocktails/all-cocktails/", "not_used"))
     )
 
-    parser = IbaCocktailListParser()
+    parser = IbaCocktailListParser(json_root_dir="./data/json-data")
     payload = parser.parse(payload)
 
     console.print(payload)

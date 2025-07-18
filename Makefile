@@ -5,15 +5,10 @@ coverage:  ## Display a test coverage report
 	uv run coverage report -m
 
 run-pipeline:  ## Run the scraping pipeline
-	uv run src/scraper/main.py run-pipeline
+	uv run src/main.py run-pipeline
 
 run-components:  ## Test a single component of the scraping pipeline
-	uv run src/scraper/main.py test-components
-
-demo:  ## Run a demo of the application (main.py)
-	uv run src/scraper/main.py --help
-	uv run src/scraper/main.py hello --name "$$(whoami)"
-	uv run src/scraper/main.py goodbye --name "$$(whoami)" --formal
+	uv run src/main.py test-components
 
 lint:  ## Run the linter via ruff
 	uv run ruff check .
