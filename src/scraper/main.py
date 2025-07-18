@@ -22,11 +22,11 @@ def run_pipeline() -> None:
         "write_content": True,
         "write_backup": True,
         "parser_map": {
-            "iba-all-cocktails": "scraper.parsers.IbaCocktailListParser",
-            "iba-cocktail": "scraper.parsers.IbaCocktailParser",
+            "iba-all-cocktails": "scraper.iba.parsers.IbaCocktailListParser",
+            "iba-cocktail": "scraper.iba.parsers.IbaCocktailParser",
         },
         "transformer_map": {
-            "iba-all-cocktails": "scraper.transformers.IbaCocktailListTransformer"
+            "iba-all-cocktails": "scraper.iba.transformers.IbaCocktailListTransformer"
         },
     }
 
@@ -40,8 +40,8 @@ def run_pipeline() -> None:
 @app.command()
 def test_components() -> None:
     """Test the individual components of the pipeline."""
+    from scraper.iba.parsers import IbaCocktailListParser  # noqa: PLC0415
     from scraper.model import Link, Payload  # noqa: PLC0415
-    from scraper.parsers import IbaCocktailListParser  # noqa: PLC0415
     from scraper.scrapers import FileScraper, WebScraper  # noqa: PLC0415, F401
 
     # scraper = WebScraper("./data/html-data", write_content=True, write_backup=True)  # noqa: ERA001, E501, RUF100
