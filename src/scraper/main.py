@@ -22,8 +22,8 @@ def run_pipeline() -> None:
         "write_content": True,
         "write_backup": True,
         "parser_map": {
-            "iba-all-cocktails": "scraper.iba.parsers.IbaCocktailListParser",
-            "iba-cocktail": "scraper.iba.parsers.IbaCocktailParser",
+            "iba-all-cocktails": "scraper.mock_iba.parsers.IbaCocktailListParser",
+            "iba-cocktail": "scraper.mock_iba.parsers.IbaCocktailParser",
         },
         "transformer_map": {
             "iba-all-cocktails": "scraper.iba.transformers.IbaCocktailListTransformer"
@@ -51,7 +51,7 @@ def test_components() -> None:
     )
 
     parser = IbaCocktailListParser()
-    payload = parser.parse_v2(payload)
+    payload = parser.parse(payload)
 
     console.print(payload)
 

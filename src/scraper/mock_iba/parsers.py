@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 from loguru import logger
 
 from scraper.fileutils import build_raw_filepath
@@ -54,7 +54,6 @@ class IbaCocktailListParser(Parser):
              }
           }
           ```
-
         Raises:
             ValueError: If the payload does not contain HTML content.
         """  # noqa: E501
@@ -63,38 +62,28 @@ class IbaCocktailListParser(Parser):
             raise ValueError(msg)
 
         logger.info("Parsing IBA Cocktail List page: {url}", url=payload.link.url)
-        soup = BeautifulSoup(payload.html_content, features="html.parser")
+        soup = BeautifulSoup(payload.html_content, "html.parser")
 
-        # get the next page link if present
-        raw_link = soup.css.select("a.next")
+        # parse out the cocktails on the current page
+        cocktails = []
+        for item in soup.css.select("li.cocktail"):
+            link = item.find("a")
+            tag_text, tag_href = SoupHelper.safe_parse_link(link)
+            cocktails.append({"name": tag_text, "url": tag_href})
+
+        # parse out the "next" link in the nav
+        raw_link = soup.css.select("div.nav a.next")
 
         if raw_link is not None and len(raw_link) > 0:
             next_link = raw_link[0].get("href")
         else:
             next_link = None
 
-        def _parse_cocktail(cocktail: Tag) -> dict[str, str]:
-            """Parse a single cocktail element into a dictionary."""
-            name = SoupHelper.safe_parse_text(cocktail.find("h2"))
-            _, url = SoupHelper.safe_parse_link(cocktail.find("a"))
-            category = SoupHelper.safe_parse_text(
-                cocktail.find("div", {"class": "cocktail-category"})
-            ).strip()
-            picture_url = SoupHelper.safe_parse_src(cocktail.find("img"))
-            return {
-                "name": name,
-                "url": url,
-                "category": category,
-                "picture_url": picture_url,
-            }
-
-        cocktails = [
-            _parse_cocktail(cocktail) for cocktail in soup.css.select("div.cocktail")
-        ]
-
         content = {
             "cocktails": cocktails,
-            "links": {"next": next_link},
+            "links": {
+                "next": next_link,
+            },
         }
 
         json_content = json.dumps(content)
@@ -109,7 +98,11 @@ class IbaCocktailListParser(Parser):
             )
             filepath.write_text(json_content)
 
-        return Payload(link=payload.link, json_content=json_content)
+        return Payload(
+            link=payload.link,
+            json_content=json_content,
+            json_schema="iba-all-cocktails",
+        )
 
 
 class IbaCocktailParser(Parser):
