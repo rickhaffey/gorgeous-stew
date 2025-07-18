@@ -23,7 +23,8 @@ class Pipeline:
         self._json_root_dir = config.get("json_root_dir", "./json-data")
         self._read_sequence = config.get("read_sequence", ["file"])
         self._write_content = config.get("write_content", True)
-        self._write_backup = config.get("write_backup", True)
+        self._write_backup = config.get("write_backup", False)
+        self._scrape_delay_ms = config.get("scrape_delay_ms", 0)
 
         self._scrapers: dict[str, Scraper] = self._build_scrapers()
         self._parser_factory = ParserFactory(config["parser_map"], self._json_root_dir)
@@ -53,6 +54,7 @@ class Pipeline:
                     self._html_root_dir,
                     write_content=self._write_content,
                     write_backup=self._write_backup,
+                    delay_ms=self._scrape_delay_ms,
                 )
 
             else:

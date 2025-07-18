@@ -1,5 +1,6 @@
 """Web scraping functionality for extracting HTML content from webpages."""
 
+import time
 from abc import ABC, abstractmethod
 from pathlib import Path
 
@@ -37,6 +38,7 @@ class WebScraper(Scraper):
         *,
         write_content: bool = True,
         write_backup: bool = True,
+        delay_ms: int = 0,
     ) -> None:
         """
         Instantiate a `WebScraper`.
@@ -48,10 +50,14 @@ class WebScraper(Scraper):
             should be written to local storage.
           write_backup: A boolean flag indicating whether the process should
             backup previously written files (rather than overwriting.)
+          delay_ms: An integer representing the delay, in milliseconds, to
+            wait after scraping a page before returning. This can be used to
+            avoid overwhelming the server with requests.
         """
         self.html_root_dir = Path(html_root_dir)
         self.write_content = write_content
         self.write_backup = write_backup
+        self.delay_ms = delay_ms
 
     def _backup_page_if_exists(self, url: str) -> bool:
         """Check if file corresponding to `url` exists, and backup if found."""
@@ -106,6 +112,15 @@ class WebScraper(Scraper):
                 "Writing scraped HTML content to file: {filepath}", filepath=filepath
             )
             filepath.write_text(html)
+
+        if self.delay_ms > 0:
+            logger.info(
+                "Delaying for {delay_ms} milliseconds after scraping URL: {url}",
+                delay_ms=self.delay_ms,
+                url=payload.link.url,
+            )
+
+            time.sleep(self.delay_ms / 1000.0)
 
         return Payload(link=payload.link, html_content=html)
 

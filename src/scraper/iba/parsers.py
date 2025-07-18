@@ -109,7 +109,11 @@ class IbaCocktailListParser(Parser):
             )
             filepath.write_text(json_content)
 
-        return Payload(link=payload.link, json_content=json_content)
+        return Payload(
+            link=payload.link,
+            json_content=json_content,
+            json_schema="iba-all-cocktails",
+        )
 
 
 class IbaCocktailParser(Parser):
