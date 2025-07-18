@@ -36,6 +36,16 @@ class SoupHelper:
     """
 
     @staticmethod
+    def safe_find_all(element: PageElement | None, name: str) -> list[PageElement]:
+        """Safely find all elements in a BeautifulSoup element."""
+        if element:
+            tag = typing.cast("Tag", element)
+            return tag.find_all(name)
+
+        msg = "Element is None or empty."
+        raise ValueError(msg)
+
+    @staticmethod
     def safe_parse_text(element: PageElement | None) -> str:
         """Safely parse text from a BeautifulSoup element."""
         if element:

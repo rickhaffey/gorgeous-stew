@@ -40,9 +40,13 @@ def run_pipeline() -> None:
 @app.command()
 def test_components() -> None:
     """Test the individual components of the pipeline."""
-    from scraper.iba.parsers import IbaCocktailListParser  # noqa: PLC0415
+    from scraper.iba.parsers import (  # noqa: PLC0415
+        IbaCocktailListParser,
+        IbaCocktailParser,
+    )
+    from scraper.iba.transformers import IbaCocktailListTransformer  # noqa: PLC0415
     from scraper.model import Link, Payload  # noqa: PLC0415
-    from scraper.scrapers import FileScraper, WebScraper  # noqa: PLC0415, F401
+    from scraper.scrapers import FileScraper, WebScraper  # noqa: PLC0415
 
     # scraper = WebScraper("./data/html-data", write_content=True, write_backup=True)  # noqa: ERA001, E501, RUF100
     scraper = FileScraper("./data/html-data")  # noqa: ERA001, E501, RUF100
@@ -53,7 +57,29 @@ def test_components() -> None:
     parser = IbaCocktailListParser(json_root_dir="./data/json-data")
     payload = parser.parse(payload)
 
-    console.print(payload)
+    transformer = IbaCocktailListTransformer()
+    payloads = transformer.transform(payload)
+    console.print(f"Transformed payloads: {payloads}")
+
+    web_scraper = WebScraper("./data/html-data", write_content=True, write_backup=True)
+    cocktail_parser = IbaCocktailParser(json_root_dir="./data/json-data")
+
+    counter = 0
+    for payload in payloads:
+        if not payload.html_content and not payload.json_content:
+            scrape_payload = web_scraper.scrape(
+                Payload(link=Link(payload.link.url, "iba-cocktail"))
+            )
+            console.print(f"Scraped: {scrape_payload}")
+
+            parse_payload = cocktail_parser.parse(scrape_payload)
+            console.print(f"Parsed: {parse_payload}")
+            counter += 1
+
+        if counter >= 3:  # noqa: PLR2004
+            break
+
+    console.print(payloads)
 
 
 if __name__ == "__main__":

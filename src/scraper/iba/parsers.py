@@ -162,28 +162,34 @@ class IbaCocktailParser(Parser):
 
         logger.info("Parsing IBA Cocktail page: {url}", url=payload.link.url)
         soup = BeautifulSoup(payload.html_content, "html.parser")
-        content = soup.css.select("div.cocktail")[0]
-        name = SoupHelper.safe_parse_text(content.find("h2"))
 
-        ingredients = [
-            item.text for item in content.css.select("ul.ingredients")[0].find_all("li")
-        ]
+        divs = soup.find_all("div", {"class": "elementor-shortcode"})
 
-        instructions = [
-            item.text
-            for item in content.css.select("ul.instructions")[0].find_all("li")
-        ]
+        ingredients: list[str] = []
+        instructions: list[str] = []
+        garnishes: list[str] = []
 
-        garnish = content.css.select("p.garnish")[0].text
+        for div in divs:
+            ul = SoupHelper.safe_find_all(div, "ul")
+            if len(ul) > 0:
+                ingredients.extend(
+                    [li.text for li in SoupHelper.safe_find_all(ul[0], "li")]
+                )
 
-        cocktail = {
-            "name": name,
+            ps = SoupHelper.safe_find_all(div, "p")
+            if len(ps) > 0:
+                if len(instructions) == 0:
+                    instructions.extend([p.text for p in ps])
+                else:
+                    garnishes.extend([p.text for p in ps])
+
+        # TODO: cocktail name
+        content = {
             "ingredients": ingredients,
             "instructions": instructions,
-            "garnish": garnish,
+            "garnishes": garnishes,
         }
-
-        json_content = json.dumps(cocktail)
+        json_content = json.dumps(content)
 
         # if a json_root_dir is provided, write the content to a file
         if self.json_root_dir:
