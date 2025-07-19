@@ -5,9 +5,6 @@ __pycache__/
 
 .idea/
 
-
-data/
-
 .DS_Store
 
 .coverage
