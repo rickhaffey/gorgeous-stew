@@ -1,5 +1,5 @@
-test:  ## Run all tests
-	uv run coverage run -m pytest
+test:  ## Run all tests and display a coverage report
+	uv run coverage run -m pytest && uv run coverage report -m
 
 coverage:  ## Display a test coverage report
 	uv run coverage report -m

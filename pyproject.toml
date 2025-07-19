@@ -40,6 +40,11 @@ ignore = [
 [tool.ruff.lint.pydocstyle]
 convention = "google"
 
+[tool.mypy]
+files = [
+    "src/scraper/**/*.py",
+    # exclude tests for type checking "tests/**/*.py",
+]
 
 [build-system]
 requires = ["setuptools", "setuptools-scm"]

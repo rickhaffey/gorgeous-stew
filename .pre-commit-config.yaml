@@ -25,7 +25,8 @@ repos:
       - id: mypy
         name: mypy
         entry: uv run mypy
-        args: []
+        args:
+          - ./src
         language: system
         types: [python]
   - repo: https://github.com/compilerla/conventional-pre-commit
