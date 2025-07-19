@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from scraper.model import Payload
+from gorgeous_stew.model import Payload
 
 
 class Transformer(ABC):

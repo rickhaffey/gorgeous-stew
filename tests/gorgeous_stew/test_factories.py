@@ -1,8 +1,8 @@
 # ruff: noqa: D100, D103, S101
 import pytest
 
-from scraper.factories import ParserFactory, TransformerFactory
-from scraper.model import Link, Payload
+from gorgeous_stew.factories import ParserFactory, TransformerFactory
+from gorgeous_stew.model import Link, Payload
 
 FAKE_URL = "https://www.test.com/fake-url"
 DEFAULT_LINK = Link(page_type="fake_page", url=FAKE_URL)
@@ -11,8 +11,8 @@ DEFAULT_LINK = Link(page_type="fake_page", url=FAKE_URL)
 def test_parser_factory_build_success() -> None:
     """Test the build method of ParserFactory."""
     mapping = {
-        "page_1": "scraper.iba.parsers.IbaCocktailListParser",
-        "page_2": "scraper.iba.parsers.IbaCocktailParser",
+        "page_1": "gorgeous_stew.iba.parsers.IbaCocktailListParser",
+        "page_2": "gorgeous_stew.iba.parsers.IbaCocktailParser",
     }
     factory = ParserFactory(mapping, json_dir=None)
 
@@ -29,8 +29,8 @@ def test_parser_factory_build_success() -> None:
 
 def test_parser_factory_build_failure() -> None:
     mapping = {
-        "page_1": "scraper.iba.parsers.IbaCocktailListParser",
-        "page_2": "scraper.iba.parsers.IbaCocktailParser",
+        "page_1": "gorgeous_stew.iba.parsers.IbaCocktailListParser",
+        "page_2": "gorgeous_stew.iba.parsers.IbaCocktailParser",
     }
     factory = ParserFactory(mapping, json_dir=None)
 
@@ -43,7 +43,7 @@ def test_parser_factory_build_failure() -> None:
 def test_parser_factory_build_invalid_link() -> None:
     """Test build method with an invalid link."""
     mapping = {
-        "page_1": "scraper.iba.parsers.IbaCocktailListParser",
+        "page_1": "gorgeous_stew.iba.parsers.IbaCocktailListParser",
     }
     factory = ParserFactory(mapping, json_dir=None)
 
@@ -56,7 +56,7 @@ def test_parser_factory_build_invalid_link() -> None:
 def test_transformer_factory_build_success() -> None:
     """Test the build method of TransformerFactory."""
     mapping = {
-        "schema_1": "scraper.iba.transformers.IbaCocktailListTransformer",
+        "schema_1": "gorgeous_stew.iba.transformers.IbaCocktailListTransformer",
     }
     factory = TransformerFactory(mapping)
 
@@ -67,7 +67,7 @@ def test_transformer_factory_build_success() -> None:
 
 def test_transformer_factory_build_failure() -> None:
     mapping = {
-        "schema_1": "scraper.iba.transformers.IbaCocktailListTransformer",
+        "schema_1": "gorgeous_stew.iba.transformers.IbaCocktailListTransformer",
     }
     factory = TransformerFactory(mapping)
 
@@ -79,7 +79,7 @@ def test_transformer_factory_build_failure() -> None:
 def test_transformer_factory_build_invalid_payload() -> None:
     """Test build method with an invalid payload."""
     mapping = {
-        "schema_1": "scraper.iba.transformers.IbaCocktailListTransformer",
+        "schema_1": "gorgeous_stew.iba.transformers.IbaCocktailListTransformer",
     }
     factory = TransformerFactory(mapping)
 

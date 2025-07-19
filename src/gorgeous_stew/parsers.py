@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 
 from bs4 import PageElement, Tag
 
-from scraper.model import Payload
+from gorgeous_stew.model import Payload
 
 
 class Parser(ABC):

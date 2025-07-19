@@ -6,9 +6,9 @@ from pathlib import Path
 from bs4 import BeautifulSoup, Tag
 from loguru import logger
 
-from scraper.fileutils import build_raw_filepath
-from scraper.model import Payload
-from scraper.parsers import Parser, SoupHelper
+from gorgeous_stew.fileutils import build_raw_filepath
+from gorgeous_stew.model import Payload
+from gorgeous_stew.parsers import Parser, SoupHelper
 
 
 class IbaCocktailListParser(Parser):

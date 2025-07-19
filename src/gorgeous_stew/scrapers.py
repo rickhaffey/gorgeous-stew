@@ -7,8 +7,8 @@ from pathlib import Path
 import requests
 from loguru import logger
 
-from scraper.fileutils import build_raw_filepath
-from scraper.model import Payload
+from gorgeous_stew.fileutils import build_raw_filepath
+from gorgeous_stew.model import Payload
 
 
 class Scraper(ABC):

@@ -2,9 +2,9 @@
 
 from loguru import logger
 
-from scraper.factories import ParserFactory, TransformerFactory
-from scraper.model import Link, Payload, PipelineConfig
-from scraper.scrapers import FileScraper, Scraper, WebScraper
+from gorgeous_stew.factories import ParserFactory, TransformerFactory
+from gorgeous_stew.model import Link, Payload, PipelineConfig
+from gorgeous_stew.scrapers import FileScraper, Scraper, WebScraper
 
 
 class Pipeline:

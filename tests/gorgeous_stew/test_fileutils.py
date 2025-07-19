@@ -1,7 +1,7 @@
 # ruff: noqa: D100, S101
 from datetime import UTC, datetime
 
-from scraper.fileutils import build_raw_filepath
+from gorgeous_stew.fileutils import build_raw_filepath
 
 
 def test_build_raw_filepath_removes_prefixes() -> None:

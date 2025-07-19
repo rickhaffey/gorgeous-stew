@@ -394,7 +394,7 @@ wheels = [
 ]
 
 [[package]]
-name = "scraper"
+name = "gorgeous-stew"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [

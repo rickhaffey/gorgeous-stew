@@ -1,6 +1,6 @@
-# scraper
+# Gorgeous Stew
 
-A simple web scraping pipeline app.
+A config-driven web scraping pipeline app.
 
 ## Setup
 

@@ -5,9 +5,9 @@ from typing import Any
 
 from loguru import logger
 
-from scraper.model import Link, Payload
-from scraper.parsers import Parser
-from scraper.transformers import Transformer
+from gorgeous_stew.model import Link, Payload
+from gorgeous_stew.parsers import Parser
+from gorgeous_stew.transformers import Transformer
 
 
 class FactoryBase:

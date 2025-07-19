@@ -13,8 +13,8 @@ console = Console()
 @app.command()
 def run_pipeline() -> None:
     """Run the scraping process."""
-    from scraper.model import PipelineConfig  # noqa: PLC0415
-    from scraper.pipeline import Pipeline  # noqa: PLC0415
+    from gorgeous_stew.model import PipelineConfig  # noqa: PLC0415
+    from gorgeous_stew.pipeline import Pipeline  # noqa: PLC0415
 
     # Define the configuration for the scraping pipeline
     config = PipelineConfig(
@@ -25,11 +25,11 @@ def run_pipeline() -> None:
         write_backup=False,
         scrape_delay_ms=1000,
         parser_map={
-            "iba-all-cocktails": "scraper.iba.parsers.IbaCocktailListParser",
-            "iba-cocktail": "scraper.iba.parsers.IbaCocktailParser",
+            "iba-all-cocktails": "gorgeous_stew.iba.parsers.IbaCocktailListParser",
+            "iba-cocktail": "gorgeous_stew.iba.parsers.IbaCocktailParser",
         },
         transformer_map={
-            "iba-all-cocktails": "scraper.iba.transformers.IbaCocktailListTransformer"
+            "iba-all-cocktails": "gorgeous_stew.iba.transformers.IbaCocktailListTransformer"  # noqa: E501
         },
     )
 

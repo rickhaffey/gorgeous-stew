@@ -1,7 +1,7 @@
 [project]
-name = "scraper"
+name = "gorgeous-stew"
 version = "0.1.0"
-description = "A simple web scraping pipeline app."
+description = "A config-driven web scraping pipeline app."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
@@ -41,7 +41,7 @@ convention = "google"
 
 [tool.mypy]
 files = [
-    "src/scraper/**/*.py",
+    "src/gorgeous_stew/**/*.py",
     # exclude tests for type checking "tests/**/*.py",
 ]
 
@@ -50,4 +50,4 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [tools.setuptools.package-dir]
-scraper="src/scraper"
+gorgeous-stew="src/gorgeous_stew"
