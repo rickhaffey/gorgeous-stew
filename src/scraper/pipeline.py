@@ -3,32 +3,29 @@
 from loguru import logger
 
 from scraper.factories import ParserFactory, TransformerFactory
-from scraper.model import Link, Payload
+from scraper.model import Link, Payload, PipelineConfig
 from scraper.scrapers import FileScraper, Scraper, WebScraper
 
 
 class Pipeline:
     """Scraping Pipeline."""
 
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: PipelineConfig) -> None:
         """
         Instantiate a new Pipeline.
 
         Args:
-          config: A `dict` containing mappings for `Parser` and
-            `Transformer` instantiation.
+          config: A `PipelineConfig` containing various configuration
+            values, as well as mappings for `Parser` and `Transformer`
+            instantiation.
         """
         logger.info("Initializing Pipeline with config: {config}", config=config)
-        self._html_root_dir = config.get("html_root_dir", "./html-data")
-        self._json_root_dir = config.get("json_root_dir", "./json-data")
-        self._read_sequence = config.get("read_sequence", ["file"])
-        self._write_content = config.get("write_content", True)
-        self._write_backup = config.get("write_backup", False)
-        self._scrape_delay_ms = config.get("scrape_delay_ms", 0)
-
+        self._config = config
         self._scrapers: dict[str, Scraper] = self._build_scrapers()
-        self._parser_factory = ParserFactory(config["parser_map"], self._json_root_dir)
-        self._transformer_factory = TransformerFactory(config["transformer_map"])
+        self._parser_factory = ParserFactory(
+            self._config.parser_map, self._config.json_root_dir
+        )
+        self._transformer_factory = TransformerFactory(self._config.transformer_map)
 
     def _build_scrapers(self) -> dict[str, Scraper]:
         """
@@ -41,20 +38,20 @@ class Pipeline:
         """
         scrapers: dict[str, Scraper] = {}
 
-        for read_source in self._read_sequence:
+        for read_source in self._config.read_sequence:
             logger.info(
                 "Building scraper for read source: {source}", source=read_source
             )
 
             if read_source == "file":
-                scrapers[read_source] = FileScraper(self._html_root_dir)
+                scrapers[read_source] = FileScraper(self._config.html_root_dir)
 
             elif read_source == "web":
                 scrapers[read_source] = WebScraper(
-                    self._html_root_dir,
-                    write_content=self._write_content,
-                    write_backup=self._write_backup,
-                    delay_ms=self._scrape_delay_ms,
+                    self._config.html_root_dir,
+                    write_content=self._config.write_content,
+                    write_backup=self._config.write_backup,
+                    delay_ms=self._config.scrape_delay_ms,
                 )
 
             else:
@@ -86,7 +83,7 @@ class Pipeline:
             RuntimeError: If no HTML content could be scraped from any
               source in the read sequence.
         """
-        for read_source in self._read_sequence:
+        for read_source in self._config.read_sequence:
             logger.info(
                 "Scraping via {read_source} for URL: {url}",
                 read_source=read_source,

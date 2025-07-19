@@ -1,6 +1,20 @@
 """Defines the data models used in the scraping pipeline."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+
+@dataclass
+class PipelineConfig:
+    """Represents the configuration for the scraping pipeline."""
+
+    html_root_dir: str = "./data/html"
+    json_root_dir: str = "./data/json"
+    read_sequence: list[str] = field(default_factory=lambda: ["file"])
+    write_content: bool = True
+    write_backup: bool = False
+    scrape_delay_ms: int = 0
+    parser_map: dict[str, str] = field(default_factory=dict)
+    transformer_map: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
