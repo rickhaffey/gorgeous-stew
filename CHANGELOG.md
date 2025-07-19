@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+* :wrench: [#3] add changelog and automation support. PR [#4](https://github.com/rickhaffey/gorgeous-stew/pull/4) by [@rickhaffey](https://github.com/rickhaffey).
+
 ## 0.0.0
 
 Keep Here For Now Until We Have More Changes.  Once we have a version bump,
