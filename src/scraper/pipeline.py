@@ -20,12 +20,46 @@ class Pipeline:
             instantiation.
         """
         logger.info("Initializing Pipeline with config: {config}", config=config)
+        self._validate_config(config)
         self._config = config
         self._scrapers: dict[str, Scraper] = self._build_scrapers()
         self._parser_factory = ParserFactory(
             self._config.parser_map, self._config.json_root_dir
         )
         self._transformer_factory = TransformerFactory(self._config.transformer_map)
+
+    def _validate_config(self, config: PipelineConfig) -> None:
+        """
+        Validate the provided PipelineConfig.
+
+        Args:
+          config: The PipelineConfig to validate.
+
+        Raises:
+          ValueError: If the configuration is invalid.
+        """
+        if not config.read_sequence:
+            msg = "Read sequence cannot be empty."
+            raise ValueError(msg)
+        if not config.parser_map:
+            msg = "Parser map cannot be empty."
+            raise ValueError(msg)
+        if not config.transformer_map:
+            msg = "Transformer map cannot be empty."
+            raise ValueError(msg)
+        if not config.html_root_dir:
+            msg = "HTML root directory must be specified."
+            raise ValueError(msg)
+
+        # Validate that all read sources in the sequence are supported
+        supported_sources = {"file", "web"}
+        for source in config.read_sequence:
+            if source not in supported_sources:
+                msg = (
+                    f"Unsupported read source: {source}. "
+                    f"Supported sources are: {supported_sources}"
+                )
+                raise ValueError(msg)
 
     def _build_scrapers(self) -> dict[str, Scraper]:
         """
@@ -55,8 +89,9 @@ class Pipeline:
                 )
 
             else:
-                # TODO: Is ValueError the right exception here?
-                #   Should this have been checked when pipeline was instantiated?
+                # NOTE: the list of provided resource types was checked
+                # at pipeline instantiation so we should never hit this
+                # scenario; adding check as an additional backup
                 msg = (
                     f"Unknown read source: {read_source}. Supported sources "
                     "are 'file' and 'web'."

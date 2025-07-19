@@ -34,7 +34,6 @@ ignore = [
 
     "TD002",  # missing author in TODO
     "TD003",  # missing issue link in TODO
-    "FIX002",  # line contains TODO
 ]
 
 [tool.ruff.lint.pydocstyle]

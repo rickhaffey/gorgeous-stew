@@ -187,7 +187,6 @@ class IbaCocktailParser(Parser):
                 else:
                     garnishes.extend([p.text for p in ps])
 
-        # TODO: cocktail name
         content = {
             "ingredients": ingredients,
             "instructions": instructions,
