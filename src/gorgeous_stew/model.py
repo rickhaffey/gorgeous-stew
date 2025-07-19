@@ -2,9 +2,10 @@
 
 from dataclasses import dataclass, field
 
+from pydantic import BaseModel
 
-@dataclass
-class PipelineConfig:
+
+class PipelineConfig(BaseModel):
     """Represents the configuration for the scraping pipeline."""
 
     html_root_dir: str = "./data/html"
