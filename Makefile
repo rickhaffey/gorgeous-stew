@@ -1,14 +1,8 @@
 test:  ## Run all tests and display a coverage report
 	uv run coverage run -m pytest && uv run coverage report -m
 
-coverage:  ## Display a test coverage report
-	uv run coverage report -m
-
 run-pipeline:  ## Run the scraping pipeline
 	uv run src/main.py run-pipeline
-
-run-components:  ## Test a single component of the scraping pipeline
-	uv run src/main.py test-components
 
 lint:  ## Run the linter via ruff
 	uv run ruff check .

@@ -1,16 +1,16 @@
 <!-- markdownlint-disable MD041 -->
 <!---
-Provide a short summary in the title above, including the JIRA ticket number
+Provide a short summary in the title above, including the GH issue number
 driving this change.
 
 Examples of good PR titles:
-* ":sparkles: feature [IOP-1234] add support for such-and-such"
-* ":bug: fix [IOP-2345] resolve issue with so-and-so"
+* ":sparkles: feature [#253] add support for such-and-such"
+* ":bug: fix [#123] resolve issue with so-and-so"
 -->
 
 ## Description
 
-**JIRA Ticket**: [IOP-XXX](https://fanaticscorp.atlassian.net/browse/IOP-XXX)
+**Github Issue**: <!--- Link to the issue this PR addresses, if applicable. -->
 
 <!---
 Describe your changes, and why you're making them.

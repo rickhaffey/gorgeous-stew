@@ -48,6 +48,9 @@ def build_raw_filepath(
       extension: The file extension to use.
       tag: Optional tag to append to the filename. Defaults to None.
       is_backup: Whether this is a backup file. Defaults to False.
+
+    Returns:
+        A `Path` object representing the constructed filename.
     """
     file_name = _sanitize_url(url)
 

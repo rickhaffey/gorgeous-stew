@@ -66,9 +66,12 @@ class Pipeline:
         Build the `Scrapers` based on the read sequence.
 
         Returns:
-            A dictionary mapping read sources to their respective `Scraper` instances.
-            - "file": `FileScraper`
-            - "web": `WebScraper`
+          A dictionary mapping read sources to their respective `Scraper` instances.
+          - "file": `FileScraper`
+          - "web": `WebScraper`
+
+        Raises:
+          ValueError: If an unknown read source is encountered.
         """
         scrapers: dict[str, Scraper] = {}
 
