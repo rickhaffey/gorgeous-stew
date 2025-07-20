@@ -34,12 +34,12 @@ class IbaCocktailListTransformer(Transformer):
         Raises:
             ValueError: If the `payload` does not contain valid JSON content.
         """
-        if payload.json_content is None:
+        if payload.content is None:
             msg = "Payload does not contain JSON content."
             raise ValueError(msg)
 
         logger.info("Transforming IBA Cocktail List payload")
-        obj = json.loads(payload.json_content)
+        obj = json.loads(payload.content)
 
         result = [
             Payload(

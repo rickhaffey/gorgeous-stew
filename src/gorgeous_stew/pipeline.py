@@ -131,7 +131,7 @@ class Pipeline:
             scraper = self._scrapers[read_source]
             payload = scraper.scrape(payload)
 
-            if payload.html_content:
+            if payload.content:
                 logger.info(
                     "HTML content scraped successfully for URL: {url}",
                     url=payload.link.href,
@@ -161,18 +161,18 @@ class Pipeline:
             return [payload]
 
         # link payload (needs to be scraped and processed further)
-        if payload.html_content is None and payload.json_content is None:
+        if payload.content is None:
             next_payload = self._scrape(payload)
             return self._handle_payload(next_payload)
 
         # html payload needing parsing
-        if payload.html_content is not None:
+        if payload.content is not None and payload.content_type == "text/html":
             parser = self._parser_factory.build(payload.link)
             next_payload = parser.parse(payload)
             return self._handle_payload(next_payload)
 
         # json payload needing transformation
-        if payload.json_content is not None:
+        if payload.content is not None and payload.content_type == "application/json":
             transformer = self._transformer_factory.build(payload)
             next_payloads = transformer.transform(payload)
 

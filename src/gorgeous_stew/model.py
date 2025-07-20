@@ -32,7 +32,7 @@ class Payload:
     """Represents a payload moving through a scraping pipeline."""
 
     link: Link
-    html_content: str | None = None
-    json_content: str | None = None
+    content: str | None = None
+    content_type: str | None = None
     json_schema: str | None = None
     is_complete: bool = False

@@ -1,3 +1,5 @@
+all-checks: format lint typecheck pydoclint test ## Run formatting, then all checks: format lint, typecheck, pydoclint, and tests
+
 test:  ## Run all tests and display a coverage report
 	uv run coverage run -m pytest && uv run coverage report -m
 

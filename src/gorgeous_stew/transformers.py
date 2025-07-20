@@ -11,10 +11,10 @@ class Transformer(ABC):
     @abstractmethod
     def transform(self, payload: Payload) -> list[Payload]:
         """
-        Transform the JSON in `payload.json_content`.
+        Transform the JSON in `payload.content`.
 
         Args:
-          payload: A `Payload` containing the `json_content` to transform.
+          payload: A `Payload` containing the `content` to transform.
 
         Returns:
           A `list` of `Payload` objects.  Each payload will be one of three different

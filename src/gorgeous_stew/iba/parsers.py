@@ -32,7 +32,7 @@ class IbaCocktailListParser(Parser):
 
     def parse(self, payload: Payload) -> Payload:
         """
-        Parse the `html_content` within `payload`.
+        Parse the HTML `content` within `payload`.
 
         Args:
           payload: A `Payload` containing the HTML content of an
@@ -40,7 +40,7 @@ class IbaCocktailListParser(Parser):
 
         Returns:
           A `Payload` containing the JSON content parsed from the
-          page HTML.
+            page HTML.
 
           An example of the JSON produced:
           ```
@@ -56,14 +56,23 @@ class IbaCocktailListParser(Parser):
           ```
 
         Raises:
-            ValueError: If the payload does not contain HTML content.
+            ValueError: If the payload content_type is not 'text/html'
+              or the payload does not contain HTML content.
         """  # noqa: E501
-        if payload.html_content is None:
-            msg = "Payload does not contain HTML content."
+        # TODO: find a way to extract this validation to the base class  # noqa: FIX002
+        #       while still satisfying typechecking
+        if payload.content_type != "text/html":
+            msg = (
+                f"Payload must have content_type: text/html.  "
+                f"Received: {payload.content_type}."
+            )
+            raise ValueError(msg)
+        if not payload.content:
+            msg = "Payload content is empty."
             raise ValueError(msg)
 
         logger.info("Parsing IBA Cocktail List page: {url}", url=payload.link.href)
-        soup = BeautifulSoup(payload.html_content, features="html.parser")
+        soup = BeautifulSoup(payload.content, features="html.parser")
 
         # get the next page link if present
         raw_link = soup.css.select("a.next")
@@ -111,7 +120,8 @@ class IbaCocktailListParser(Parser):
 
         return Payload(
             link=payload.link,
-            json_content=json_content,
+            content_type="application/json",
+            content=json_content,
             json_schema="iba-all-cocktails",
         )
 
@@ -137,7 +147,7 @@ class IbaCocktailParser(Parser):
 
     def parse(self, payload: Payload) -> Payload:
         """
-        Parse the `html_content` within `payload`.
+        Parse the `content` within `payload`.
 
         Args:
           payload: A `Payload` containing the HTML content of an
@@ -145,7 +155,7 @@ class IbaCocktailParser(Parser):
 
         Returns:
           A `Payload` containing the JSON content parsed from the
-          page HTML.
+            page HTML.
 
           An example of the JSON produced:
           ```
@@ -158,14 +168,21 @@ class IbaCocktailParser(Parser):
           ```
 
         Raises:
-            ValueError: If the payload does not contain HTML content.
+            ValueError: If the payload content_type is not 'text/html'
+              or the payload does not contain HTML content.
         """
-        if payload.html_content is None:
-            msg = "Payload does not contain HTML content."
+        if payload.content_type != "text/html":
+            msg = (
+                f"Payload must have content_type: text/html.  "
+                f"Received: {payload.content_type}."
+            )
+            raise ValueError(msg)
+        if not payload.content:
+            msg = "Payload content is empty."
             raise ValueError(msg)
 
         logger.info("Parsing IBA Cocktail page: {url}", url=payload.link.href)
-        soup = BeautifulSoup(payload.html_content, "html.parser")
+        soup = BeautifulSoup(payload.content, "html.parser")
 
         divs = soup.find_all("div", {"class": "elementor-shortcode"})
 
@@ -206,7 +223,8 @@ class IbaCocktailParser(Parser):
 
         return Payload(
             link=payload.link,
-            json_content=json_content,
+            content_type="application/json",
+            content=json_content,
             json_schema="iba-cocktail",
             is_complete=True,
         )

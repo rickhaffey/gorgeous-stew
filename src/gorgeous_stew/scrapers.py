@@ -23,7 +23,7 @@ class Scraper(ABC):
           payload: A `Payload` containing the `link` to scrape.
 
         Returns:
-          A `Payload` object with `html_content` populated with the scraped HTML.
+          A `Payload` object with `content` populated with the scraped HTML.
 
         """
         ...
@@ -92,7 +92,7 @@ class WebScraper(Scraper):
             payload: A `Payload` containing the `link` to scrape.
 
         Returns:
-          A `Payload` with HTML from the page in `html_content`.
+          A `Payload` with HTML from the page in `content`.
         """
         logger.info("Scraping HTML content for URL: {url}", url=payload.link.href)
         html = requests.get(payload.link.href, timeout=10).text
@@ -122,7 +122,7 @@ class WebScraper(Scraper):
 
             time.sleep(self.delay_ms / 1000.0)
 
-        return Payload(link=payload.link, html_content=html)
+        return Payload(link=payload.link, content=html, content_type="text/html")
 
 
 class FileScraper(Scraper):
@@ -149,8 +149,8 @@ class FileScraper(Scraper):
             payload: A `Payload` containing the `link` to scrape.
 
         Returns:
-          A `Payload` with HTML from the file in `html_content`.
-          If the file does not exist, `html_content` will be `None`.
+          A `Payload` with HTML from the file in `content`.
+          If the file does not exist, `content` will be `None`.
         """
         logger.info(
             "Scraping HTML content (via file) for URL: {url}", url=payload.link.href
@@ -163,9 +163,9 @@ class FileScraper(Scraper):
         if not filepath.exists():
             msg = f"File not found for URL {payload.link.href} at: {filepath}"
             logger.info(msg)
-            return Payload(link=payload.link, html_content=None)
+            return Payload(link=payload.link, content=None)
 
         logger.info("Reading HTML content from file: {filepath}", filepath=filepath)
         html = Path(filepath).read_text()
 
-        return Payload(link=payload.link, html_content=html)
+        return Payload(link=payload.link, content=html, content_type="text/html")
