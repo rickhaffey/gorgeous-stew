@@ -122,7 +122,9 @@ class WebScraper(Scraper):
 
             time.sleep(self.delay_ms / 1000.0)
 
-        return Payload(link=payload.link, content=html, content_type="text/html")
+        return Payload(
+            link=payload.link, content=html, content_type=payload.link.content_type
+        )
 
 
 class FileScraper(Scraper):
@@ -168,4 +170,6 @@ class FileScraper(Scraper):
         logger.info("Reading HTML content from file: {filepath}", filepath=filepath)
         html = Path(filepath).read_text()
 
-        return Payload(link=payload.link, content=html, content_type="text/html")
+        return Payload(
+            link=payload.link, content=html, content_type=payload.link.content_type
+        )

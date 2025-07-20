@@ -61,10 +61,17 @@ class IbaCocktailListParser(Parser):
         """  # noqa: E501
         # TODO: find a way to extract this validation to the base class  # noqa: FIX002
         #       while still satisfying typechecking
-        if payload.content_type != "text/html":
+        if not payload.content_type:
+            msg = "Payload does not have a content_type."
+            raise ValueError(msg)
+
+        if not (
+            payload.content_type == "text/html"
+            or payload.content_type.endswith("+html")
+        ):
             msg = (
-                f"Payload must have content_type: text/html.  "
-                f"Received: {payload.content_type}."
+                f"Payload must have content_type: text/html (generic or "
+                f"vendor specific).  Received: {payload.content_type}."
             )
             raise ValueError(msg)
         if not payload.content:
@@ -120,9 +127,8 @@ class IbaCocktailListParser(Parser):
 
         return Payload(
             link=payload.link,
-            content_type="application/json",
+            content_type="application/vnd.gorgeous-stew.iba-all-cocktails+json",
             content=json_content,
-            json_schema="iba-all-cocktails",
         )
 
 
@@ -171,10 +177,17 @@ class IbaCocktailParser(Parser):
             ValueError: If the payload content_type is not 'text/html'
               or the payload does not contain HTML content.
         """
-        if payload.content_type != "text/html":
+        if not payload.content_type:
+            msg = "Payload does not have a content_type."
+            raise ValueError(msg)
+
+        if not (
+            payload.content_type == "text/html"
+            or payload.content_type.endswith("+html")
+        ):
             msg = (
-                f"Payload must have content_type: text/html.  "
-                f"Received: {payload.content_type}."
+                f"Payload must have content_type: text/html (generic or "
+                f"vendor specific).  Received: {payload.content_type}."
             )
             raise ValueError(msg)
         if not payload.content:
@@ -223,8 +236,7 @@ class IbaCocktailParser(Parser):
 
         return Payload(
             link=payload.link,
-            content_type="application/json",
+            content_type="application/vnd.gorgeous-stew.iba-cocktail+json",
             content=json_content,
-            json_schema="iba-cocktail",
             is_complete=True,
         )

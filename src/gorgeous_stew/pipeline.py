@@ -166,13 +166,24 @@ class Pipeline:
             return self._handle_payload(next_payload)
 
         # html payload needing parsing
-        if payload.content is not None and payload.content_type == "text/html":
+        if (
+            payload.content
+            and payload.content_type
+            and (
+                payload.content_type == "text/html"
+                or payload.content_type.endswith("+html")
+            )
+        ):
             parser = self._parser_factory.build(payload.link)
             next_payload = parser.parse(payload)
             return self._handle_payload(next_payload)
 
         # json payload needing transformation
-        if payload.content is not None and payload.content_type == "application/json":
+        if (
+            payload.content
+            and payload.content_type
+            and payload.content_type.endswith("+json")
+        ):
             transformer = self._transformer_factory.build(payload)
             next_payloads = transformer.transform(payload)
 

@@ -45,7 +45,7 @@ class IbaCocktailListTransformer(Transformer):
             Payload(
                 link=Link(
                     href=item["url"],
-                    content_type="iba-cocktail",
+                    content_type="text/vnd.iba.cocktail+html",
                     rel="external",
                 )
             )
@@ -57,7 +57,7 @@ class IbaCocktailListTransformer(Transformer):
                 Payload(
                     link=Link(
                         href=obj["links"]["next"],
-                        content_type="iba-all-cocktails",
+                        content_type="text/vnd.iba.cocktail-list+html",
                         rel="next",
                     )
                 )

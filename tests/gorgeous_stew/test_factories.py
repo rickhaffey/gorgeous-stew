@@ -60,7 +60,7 @@ def test_transformer_factory_build_success() -> None:
     }
     factory = TransformerFactory(mapping)
 
-    payload = Payload(json_schema="schema_1", link=DEFAULT_LINK)
+    payload = Payload(content_type="schema_1", link=DEFAULT_LINK)
     transformer = factory.build(payload)
     assert transformer.__class__.__name__ == "IbaCocktailListTransformer"
 
@@ -71,8 +71,8 @@ def test_transformer_factory_build_failure() -> None:
     }
     factory = TransformerFactory(mapping)
 
-    payload_unknown = Payload(json_schema="unknown_schema", link=DEFAULT_LINK)
-    with pytest.raises(ValueError, match="Unexpected json_schema: unknown_schema"):
+    payload_unknown = Payload(content_type="unknown_schema", link=DEFAULT_LINK)
+    with pytest.raises(ValueError, match="Unexpected content_type: unknown_schema"):
         factory.build(payload_unknown)
 
 
@@ -83,6 +83,6 @@ def test_transformer_factory_build_invalid_payload() -> None:
     }
     factory = TransformerFactory(mapping)
 
-    payload_invalid = Payload(json_schema="", link=DEFAULT_LINK)
-    with pytest.raises(ValueError, match="Unexpected json_schema: "):
+    payload_invalid = Payload(content_type="", link=DEFAULT_LINK)
+    with pytest.raises(ValueError, match="Unexpected content_type: "):
         factory.build(payload_invalid)

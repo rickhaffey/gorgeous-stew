@@ -106,25 +106,25 @@ class TransformerFactory(FactoryBase):
 
     def build(self, payload: Payload) -> Transformer:
         """
-        Build a `Transformer` instance for the `json_schema` in `payload`.
+        Build a `Transformer` instance for the `content_type` in `payload`.
 
         Args:
-          payload: a `Payload` containing the `json_schema` to be transformed.
+          payload: a `Payload` containing the `content_type` to be transformed.
 
         Returns:
           A `Transformer` instance appropriate for transforming the specified
           json schema.
 
         Raises:
-            ValueError: If the `json_schema` in `payload` is not found in the mapping.
+            ValueError: If the `content_type` in `payload` is not found in the mapping.
         """
-        if payload.json_schema not in self.mapping:
-            msg = f"Unexpected json_schema: {payload.json_schema}"
+        if payload.content_type not in self.mapping:
+            msg = f"Unexpected content_type: {payload.content_type}"
             raise ValueError(msg)
 
         logger.info(
-            "Building transformer for json_schema: {json_schema}",
-            json_schema=payload.json_schema,
+            "Building transformer for content_type: {content_type}",
+            content_type=payload.content_type,
         )
-        mapped_name = self.mapping[payload.json_schema]
+        mapped_name = self.mapping[payload.content_type]
         return self.instantiate(mapped_name)
