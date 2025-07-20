@@ -42,14 +42,24 @@ class IbaCocktailListTransformer(Transformer):
         obj = json.loads(payload.json_content)
 
         result = [
-            Payload(link=Link(url=item["url"], page_type="iba-cocktail"))
+            Payload(
+                link=Link(
+                    href=item["url"],
+                    content_type="iba-cocktail",
+                    rel="external",
+                )
+            )
             for item in obj["cocktails"]
         ]
 
         if "next" in obj["links"] and obj["links"]["next"] is not None:
             result.append(
                 Payload(
-                    link=Link(url=obj["links"]["next"], page_type="iba-all-cocktails")
+                    link=Link(
+                        href=obj["links"]["next"],
+                        content_type="iba-all-cocktails",
+                        rel="next",
+                    )
                 )
             )
 

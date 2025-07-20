@@ -125,7 +125,7 @@ class Pipeline:
             logger.info(
                 "Scraping via {read_source} for URL: {url}",
                 read_source=read_source,
-                url=payload.link.url,
+                url=payload.link.href,
             )
 
             scraper = self._scrapers[read_source]
@@ -134,7 +134,7 @@ class Pipeline:
             if payload.html_content:
                 logger.info(
                     "HTML content scraped successfully for URL: {url}",
-                    url=payload.link.url,
+                    url=payload.link.href,
                 )
                 return payload
             logger.info("No HTML content found. Trying next source in sequence.")
@@ -187,23 +187,23 @@ class Pipeline:
         msg = "Unexpected payload."
         raise ValueError(msg)
 
-    def run(self, url: str, page_type: str) -> list[Payload]:
+    def run(self, url: str, content_type: str) -> list[Payload]:
         """
         Run a pipeline instance.
 
         Args:
           url: The entrypoint URL to start scraping against.
-          page_type: The page type of the URL.  This is used to decide which
+          content_type: The page type of the URL.  This is used to decide which
             `Parser`s and `Transformer`s to use in processing the page.
 
         Returns:
             A list of `Payload` instances resulting from processing the input URL.
         """
         logger.info(
-            f"Running pipeline for URL: {url} of page type: {page_type}",
+            f"Running pipeline for URL: {url} of page type: {content_type}",
             url=url,
-            page_type=page_type,
+            content_type=content_type,
         )
-        link = Link(url=url, page_type=page_type)
+        link = Link(href=url, content_type=content_type, rel="external")
 
         return self._handle_payload(Payload(link=link))

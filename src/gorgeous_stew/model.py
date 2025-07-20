@@ -22,8 +22,9 @@ class PipelineConfig(BaseModel):
 class Link:
     """Represents a web page and the type of that page."""
 
-    url: str
-    page_type: str
+    href: str
+    rel: str
+    content_type: str
 
 
 @dataclass

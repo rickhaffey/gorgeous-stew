@@ -64,26 +64,27 @@ class ParserFactory(FactoryBase):
 
     def build(self, link: Link) -> Parser:
         """
-        Build a `Parser` instance for the `page_type` in `link`.
+        Build a `Parser` instance for the `content_type` in `link`.
 
         Args:
-          link: a `Link` containing the `page_type` to be parsed.
+          link: a `Link` containing the `content_type` to be parsed.
 
         Returns:
           A `Parser` instance appropriate for parsing the specified
           page type.
 
         Raises:
-            ValueError: If the `page_type` in `link` is not found in the mapping.
+            ValueError: If the `content_type` in `link` is not found in the mapping.
         """
-        if link.page_type not in self.mapping:
-            msg = f"Unexpected page_type: {link.page_type}"
+        if link.content_type not in self.mapping:
+            msg = f"Unexpected content_type: {link.content_type}"
             raise ValueError(msg)
 
         logger.info(
-            "Building parser for page_type: {page_type}", page_type=link.page_type
+            "Building parser for content_type: {content_type}",
+            content_type=link.content_type,
         )
-        mapped_name = self.mapping[link.page_type]
+        mapped_name = self.mapping[link.content_type]
         return self.instantiate(mapped_name, self.json_dir)
 
 

@@ -62,7 +62,7 @@ class IbaCocktailListParser(Parser):
             msg = "Payload does not contain HTML content."
             raise ValueError(msg)
 
-        logger.info("Parsing IBA Cocktail List page: {url}", url=payload.link.url)
+        logger.info("Parsing IBA Cocktail List page: {url}", url=payload.link.href)
         soup = BeautifulSoup(payload.html_content, features="html.parser")
 
         # get the next page link if present
@@ -102,7 +102,7 @@ class IbaCocktailListParser(Parser):
         # if a json_root_dir is provided, write the content to a file
         if self.json_root_dir:
             filepath = Path(self.json_root_dir) / build_raw_filepath(
-                payload.link.url, "json", tag="iba-all-cocktails", is_backup=False
+                payload.link.href, "json", tag="iba-all-cocktails", is_backup=False
             )
             logger.info(
                 "Writing parsed JSON content to file: {filepath}", filepath=filepath
@@ -164,7 +164,7 @@ class IbaCocktailParser(Parser):
             msg = "Payload does not contain HTML content."
             raise ValueError(msg)
 
-        logger.info("Parsing IBA Cocktail page: {url}", url=payload.link.url)
+        logger.info("Parsing IBA Cocktail page: {url}", url=payload.link.href)
         soup = BeautifulSoup(payload.html_content, "html.parser")
 
         divs = soup.find_all("div", {"class": "elementor-shortcode"})
@@ -197,7 +197,7 @@ class IbaCocktailParser(Parser):
         # if a json_root_dir is provided, write the content to a file
         if self.json_root_dir:
             filepath = Path(self.json_root_dir) / build_raw_filepath(
-                payload.link.url, "json", tag="iba-cocktail", is_backup=False
+                payload.link.href, "json", tag="iba-cocktail", is_backup=False
             )
             logger.info(
                 "Writing parsed JSON content to file: {filepath}", filepath=filepath

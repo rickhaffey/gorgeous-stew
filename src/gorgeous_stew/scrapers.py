@@ -79,7 +79,7 @@ class WebScraper(Scraper):
 
     def scrape(self, payload: Payload) -> Payload:
         """
-        Scrape HTML content from the webpage at `payload.link.url`.
+        Scrape HTML content from the webpage at `payload.link.href`.
 
         If the scraper was configured with `write_content = True`, the HTML
         content will be written to a file in `html_root_dir`.
@@ -94,19 +94,19 @@ class WebScraper(Scraper):
         Returns:
           A `Payload` with HTML from the page in `html_content`.
         """
-        logger.info("Scraping HTML content for URL: {url}", url=payload.link.url)
-        html = requests.get(payload.link.url, timeout=10).text
+        logger.info("Scraping HTML content for URL: {url}", url=payload.link.href)
+        html = requests.get(payload.link.href, timeout=10).text
 
         if self.write_content:
             if self.write_backup:
                 logger.info(
                     "Backing up existing HTML file for URL: {url}",
-                    url=payload.link.url,
+                    url=payload.link.href,
                 )
-                self._backup_page_if_exists(payload.link.url)
+                self._backup_page_if_exists(payload.link.href)
 
             filepath = self.html_root_dir / build_raw_filepath(
-                payload.link.url, "html", is_backup=False
+                payload.link.href, "html", is_backup=False
             )
             logger.info(
                 "Writing scraped HTML content to file: {filepath}", filepath=filepath
@@ -117,7 +117,7 @@ class WebScraper(Scraper):
             logger.info(
                 "Delaying for {delay_ms} milliseconds after scraping URL: {url}",
                 delay_ms=self.delay_ms,
-                url=payload.link.url,
+                url=payload.link.href,
             )
 
             time.sleep(self.delay_ms / 1000.0)
@@ -143,7 +143,7 @@ class FileScraper(Scraper):
 
     def scrape(self, payload: Payload) -> Payload:
         """
-        Scrape HTML content from the file behind `payload.link.url`.
+        Scrape HTML content from the file behind `payload.link.href`.
 
         Args:
             payload: A `Payload` containing the `link` to scrape.
@@ -153,15 +153,15 @@ class FileScraper(Scraper):
           If the file does not exist, `html_content` will be `None`.
         """
         logger.info(
-            "Scraping HTML content (via file) for URL: {url}", url=payload.link.url
+            "Scraping HTML content (via file) for URL: {url}", url=payload.link.href
         )
         filepath = self.html_root_dir / build_raw_filepath(
-            payload.link.url, "html", is_backup=False
+            payload.link.href, "html", is_backup=False
         )
 
         # first check if the file exists
         if not filepath.exists():
-            msg = f"File not found for URL {payload.link.url} at: {filepath}"
+            msg = f"File not found for URL {payload.link.href} at: {filepath}"
             logger.info(msg)
             return Payload(link=payload.link, html_content=None)
 
