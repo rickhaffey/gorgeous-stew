@@ -2,6 +2,7 @@
 
 from loguru import logger
 
+from gorgeous_stew.content_types import is_html_content_type, is_json_content_type
 from gorgeous_stew.factories import ParserFactory, TransformerFactory
 from gorgeous_stew.model import Link, Payload, PipelineConfig
 from gorgeous_stew.scrapers import FileScraper, Scraper, WebScraper
@@ -166,24 +167,13 @@ class Pipeline:
             return self._handle_payload(next_payload)
 
         # html payload needing parsing
-        if (
-            payload.content
-            and payload.content_type
-            and (
-                payload.content_type == "text/html"
-                or payload.content_type.endswith("+html")
-            )
-        ):
+        if payload.content and is_html_content_type(payload.content_type):
             parser = self._parser_factory.build(payload.link)
             next_payload = parser.parse(payload)
             return self._handle_payload(next_payload)
 
         # json payload needing transformation
-        if (
-            payload.content
-            and payload.content_type
-            and payload.content_type.endswith("+json")
-        ):
+        if payload.content and is_json_content_type(payload.content_type):
             transformer = self._transformer_factory.build(payload)
             next_payloads = transformer.transform(payload)
 
