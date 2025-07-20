@@ -6,6 +6,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup, Tag
 from loguru import logger
 
+from gorgeous_stew.content_types import is_html_content_type
 from gorgeous_stew.fileutils import build_raw_filepath
 from gorgeous_stew.model import Payload
 from gorgeous_stew.parsers import Parser, SoupHelper
@@ -59,16 +60,7 @@ class IbaCocktailListParser(Parser):
             ValueError: If the payload content_type is not 'text/html'
               or the payload does not contain HTML content.
         """  # noqa: E501
-        # TODO: find a way to extract this validation to the base class  # noqa: FIX002
-        #       while still satisfying typechecking
-        if not payload.content_type:
-            msg = "Payload does not have a content_type."
-            raise ValueError(msg)
-
-        if not (
-            payload.content_type == "text/html"
-            or payload.content_type.endswith("+html")
-        ):
+        if not is_html_content_type(payload.content_type):
             msg = (
                 f"Payload must have content_type: text/html (generic or "
                 f"vendor specific).  Received: {payload.content_type}."
@@ -177,14 +169,7 @@ class IbaCocktailParser(Parser):
             ValueError: If the payload content_type is not 'text/html'
               or the payload does not contain HTML content.
         """
-        if not payload.content_type:
-            msg = "Payload does not have a content_type."
-            raise ValueError(msg)
-
-        if not (
-            payload.content_type == "text/html"
-            or payload.content_type.endswith("+html")
-        ):
+        if not is_html_content_type(payload.content_type):
             msg = (
                 f"Payload must have content_type: text/html (generic or "
                 f"vendor specific).  Received: {payload.content_type}."
