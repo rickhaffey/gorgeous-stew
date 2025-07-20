@@ -6,6 +6,7 @@ from pathlib import Path
 from bs4 import BeautifulSoup, Tag
 from loguru import logger
 
+from gorgeous_stew.content_types import is_html_content_type
 from gorgeous_stew.fileutils import build_raw_filepath
 from gorgeous_stew.model import Payload
 from gorgeous_stew.parsers import Parser, SoupHelper
@@ -32,7 +33,7 @@ class IbaCocktailListParser(Parser):
 
     def parse(self, payload: Payload) -> Payload:
         """
-        Parse the `html_content` within `payload`.
+        Parse the HTML `content` within `payload`.
 
         Args:
           payload: A `Payload` containing the HTML content of an
@@ -40,7 +41,7 @@ class IbaCocktailListParser(Parser):
 
         Returns:
           A `Payload` containing the JSON content parsed from the
-          page HTML.
+            page HTML.
 
           An example of the JSON produced:
           ```
@@ -56,14 +57,21 @@ class IbaCocktailListParser(Parser):
           ```
 
         Raises:
-            ValueError: If the payload does not contain HTML content.
+            ValueError: If the payload content_type is not 'text/html'
+              or the payload does not contain HTML content.
         """  # noqa: E501
-        if payload.html_content is None:
-            msg = "Payload does not contain HTML content."
+        if not is_html_content_type(payload.content_type):
+            msg = (
+                f"Payload must have content_type: text/html (generic or "
+                f"vendor specific).  Received: {payload.content_type}."
+            )
+            raise ValueError(msg)
+        if not payload.content:
+            msg = "Payload content is empty."
             raise ValueError(msg)
 
-        logger.info("Parsing IBA Cocktail List page: {url}", url=payload.link.url)
-        soup = BeautifulSoup(payload.html_content, features="html.parser")
+        logger.info("Parsing IBA Cocktail List page: {url}", url=payload.link.href)
+        soup = BeautifulSoup(payload.content, features="html.parser")
 
         # get the next page link if present
         raw_link = soup.css.select("a.next")
@@ -102,7 +110,7 @@ class IbaCocktailListParser(Parser):
         # if a json_root_dir is provided, write the content to a file
         if self.json_root_dir:
             filepath = Path(self.json_root_dir) / build_raw_filepath(
-                payload.link.url, "json", tag="iba-all-cocktails", is_backup=False
+                payload.link.href, "json", tag="iba-all-cocktails", is_backup=False
             )
             logger.info(
                 "Writing parsed JSON content to file: {filepath}", filepath=filepath
@@ -111,8 +119,8 @@ class IbaCocktailListParser(Parser):
 
         return Payload(
             link=payload.link,
-            json_content=json_content,
-            json_schema="iba-all-cocktails",
+            content_type="application/vnd.gorgeous-stew.iba-all-cocktails+json",
+            content=json_content,
         )
 
 
@@ -137,7 +145,7 @@ class IbaCocktailParser(Parser):
 
     def parse(self, payload: Payload) -> Payload:
         """
-        Parse the `html_content` within `payload`.
+        Parse the `content` within `payload`.
 
         Args:
           payload: A `Payload` containing the HTML content of an
@@ -145,7 +153,7 @@ class IbaCocktailParser(Parser):
 
         Returns:
           A `Payload` containing the JSON content parsed from the
-          page HTML.
+            page HTML.
 
           An example of the JSON produced:
           ```
@@ -158,14 +166,21 @@ class IbaCocktailParser(Parser):
           ```
 
         Raises:
-            ValueError: If the payload does not contain HTML content.
+            ValueError: If the payload content_type is not 'text/html'
+              or the payload does not contain HTML content.
         """
-        if payload.html_content is None:
-            msg = "Payload does not contain HTML content."
+        if not is_html_content_type(payload.content_type):
+            msg = (
+                f"Payload must have content_type: text/html (generic or "
+                f"vendor specific).  Received: {payload.content_type}."
+            )
+            raise ValueError(msg)
+        if not payload.content:
+            msg = "Payload content is empty."
             raise ValueError(msg)
 
-        logger.info("Parsing IBA Cocktail page: {url}", url=payload.link.url)
-        soup = BeautifulSoup(payload.html_content, "html.parser")
+        logger.info("Parsing IBA Cocktail page: {url}", url=payload.link.href)
+        soup = BeautifulSoup(payload.content, "html.parser")
 
         divs = soup.find_all("div", {"class": "elementor-shortcode"})
 
@@ -197,7 +212,7 @@ class IbaCocktailParser(Parser):
         # if a json_root_dir is provided, write the content to a file
         if self.json_root_dir:
             filepath = Path(self.json_root_dir) / build_raw_filepath(
-                payload.link.url, "json", tag="iba-cocktail", is_backup=False
+                payload.link.href, "json", tag="iba-cocktail", is_backup=False
             )
             logger.info(
                 "Writing parsed JSON content to file: {filepath}", filepath=filepath
@@ -206,7 +221,7 @@ class IbaCocktailParser(Parser):
 
         return Payload(
             link=payload.link,
-            json_content=json_content,
-            json_schema="iba-cocktail",
+            content_type="application/vnd.gorgeous-stew.iba-cocktail+json",
+            content=json_content,
             is_complete=True,
         )

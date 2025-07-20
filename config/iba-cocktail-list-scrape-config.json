@@ -8,10 +8,10 @@
   "write_backup": false,
   "scrape_delay_ms": 1000,
   "parser_map": {
-    "iba-all-cocktails": "gorgeous_stew.iba.parsers.IbaCocktailListParser",
-    "iba-cocktail": "gorgeous_stew.iba.parsers.IbaCocktailParser"
+    "text/vnd.iba.cocktail-list+html": "gorgeous_stew.iba.parsers.IbaCocktailListParser",
+    "text/vnd.iba.cocktail+html": "gorgeous_stew.iba.parsers.IbaCocktailParser"
   },
   "transformer_map": {
-    "iba-all-cocktails": "gorgeous_stew.iba.transformers.IbaCocktailListTransformer"
+    "application/vnd.gorgeous-stew.iba-all-cocktails+json": "gorgeous_stew.iba.transformers.IbaCocktailListTransformer"
   }
 }

@@ -16,13 +16,13 @@ class Parser(ABC):
     @abstractmethod
     def parse(self, payload: Payload) -> Payload:
         """
-        Parse the HTML in `payload.html_content`.
+        Parse the HTML in `payload.content`.
 
         Args:
-          payload: A `Payload` containing the `html_content` to parse.
+          payload: A `Payload` containing the `content` to parse.
 
         Returns:
-          A `Payload` object with the `json_content` populated with
+          A `Payload` object with the `content` populated with
           data from the parsed HTML.
         """
 

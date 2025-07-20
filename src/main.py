@@ -21,7 +21,7 @@ def run_pipeline() -> None:
     pipeline = Pipeline(config)
     results = pipeline.run(
         url="https://iba-world.com/cocktails/all-cocktails/",
-        page_type="iba-all-cocktails",
+        content_type="text/vnd.iba.cocktail-list+html",
     )
 
     for payload in results:

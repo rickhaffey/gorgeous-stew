@@ -64,26 +64,27 @@ class ParserFactory(FactoryBase):
 
     def build(self, link: Link) -> Parser:
         """
-        Build a `Parser` instance for the `page_type` in `link`.
+        Build a `Parser` instance for the `content_type` in `link`.
 
         Args:
-          link: a `Link` containing the `page_type` to be parsed.
+          link: a `Link` containing the `content_type` to be parsed.
 
         Returns:
           A `Parser` instance appropriate for parsing the specified
           page type.
 
         Raises:
-            ValueError: If the `page_type` in `link` is not found in the mapping.
+            ValueError: If the `content_type` in `link` is not found in the mapping.
         """
-        if link.page_type not in self.mapping:
-            msg = f"Unexpected page_type: {link.page_type}"
+        if link.content_type not in self.mapping:
+            msg = f"Unexpected content_type: {link.content_type}"
             raise ValueError(msg)
 
         logger.info(
-            "Building parser for page_type: {page_type}", page_type=link.page_type
+            "Building parser for content_type: {content_type}",
+            content_type=link.content_type,
         )
-        mapped_name = self.mapping[link.page_type]
+        mapped_name = self.mapping[link.content_type]
         return self.instantiate(mapped_name, self.json_dir)
 
 
@@ -105,25 +106,25 @@ class TransformerFactory(FactoryBase):
 
     def build(self, payload: Payload) -> Transformer:
         """
-        Build a `Transformer` instance for the `json_schema` in `payload`.
+        Build a `Transformer` instance for the `content_type` in `payload`.
 
         Args:
-          payload: a `Payload` containing the `json_schema` to be transformed.
+          payload: a `Payload` containing the `content_type` to be transformed.
 
         Returns:
           A `Transformer` instance appropriate for transforming the specified
           json schema.
 
         Raises:
-            ValueError: If the `json_schema` in `payload` is not found in the mapping.
+            ValueError: If the `content_type` in `payload` is not found in the mapping.
         """
-        if payload.json_schema not in self.mapping:
-            msg = f"Unexpected json_schema: {payload.json_schema}"
+        if payload.content_type not in self.mapping:
+            msg = f"Unexpected content_type: {payload.content_type}"
             raise ValueError(msg)
 
         logger.info(
-            "Building transformer for json_schema: {json_schema}",
-            json_schema=payload.json_schema,
+            "Building transformer for content_type: {content_type}",
+            content_type=payload.content_type,
         )
-        mapped_name = self.mapping[payload.json_schema]
+        mapped_name = self.mapping[payload.content_type]
         return self.instantiate(mapped_name)
