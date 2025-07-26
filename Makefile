@@ -6,6 +6,9 @@ test:  ## Run all tests and display a coverage report
 run-pipeline:  ## Run the scraping pipeline
 	uv run src/main.py run-pipeline
 
+run-sandbox:  ## Run the sandboxed code for testing components of the pipeline
+	uv run src/main.py sandbox
+
 lint:  ## Run the linter via ruff
 	uv run ruff check .
 

@@ -1,0 +1,17 @@
+{
+  "html_root_dir": "./data/html",
+  "json_root_dir": "./data/json",
+  "read_sequence": [
+    "file"
+  ],
+  "write_content": true,
+  "write_backup": false,
+  "scrape_delay_ms": 1000,
+  "parser_map": {
+    "text/vnd.wikipedia.cocktail-list+html": "gorgeous_stew.wikipedia.parsers.CocktailListParser",
+    "text/vnd.wikipedia.cocktail+html": "gorgeous_stew.wikipedia.parsers.CocktailParser"
+  },
+  "transformer_map": {
+    "application/vnd.gorgeous-stew.wikipedia-all-cocktails+json": "gorgeous_stew.wikipedia.transformers.CocktailListTransformer"
+  }
+}
