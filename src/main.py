@@ -16,12 +16,14 @@ def run_pipeline() -> None:
     from gorgeous_stew.config import Config  # noqa: PLC0415
     from gorgeous_stew.pipeline import Pipeline  # noqa: PLC0415
 
-    config = Config.load_from_file("./config/iba-cocktail-list-scrape-config.json")
+    config = Config.load_from_file(
+        "./config/wikipedia-cocktail-list-scrape-config.json"
+    )
 
     pipeline = Pipeline(config)
     results = pipeline.run(
-        url="https://iba-world.com/cocktails/all-cocktails/",
-        content_type="text/vnd.iba.cocktail-list+html",
+        url="https://en.wikipedia.org/wiki/List_of_cocktails",
+        content_type="text/vnd.wikipedia.cocktail-list+html",
     )
 
     for payload in results:
@@ -29,8 +31,9 @@ def run_pipeline() -> None:
 
 
 @app.command()
-def test_components() -> None:
+def sandbox() -> None:
     """Test the individual components of the pipeline."""
+    raise NotImplementedError
 
 
 if __name__ == "__main__":

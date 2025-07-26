@@ -46,11 +46,21 @@ class SoupHelper:
         raise ValueError(msg)
 
     @staticmethod
-    def safe_parse_text(element: PageElement | None) -> str:
+    def safe_parse_text(
+        element: PageElement | None, *, normalize_whitespace: bool | None = False
+    ) -> str:
         """Safely parse text from a BeautifulSoup element."""
         if element:
             tag = typing.cast("Tag", element)
-            return tag.text
+
+            result = tag.text
+
+            if normalize_whitespace:
+                # Normalize whitespace by stripping leading/trailing
+                # spaces and collapsing multiple spaces
+                result = " ".join(result.split())
+
+            return result
 
         msg = "Element is None or empty."
         raise ValueError(msg)
@@ -66,11 +76,40 @@ class SoupHelper:
         raise ValueError(msg)
 
     @staticmethod
-    def safe_parse_link(link: PageElement | None) -> tuple[str, str]:
+    def safe_parse_link(
+        link: PageElement | None, *, normalize_whitespace: bool | None = False
+    ) -> tuple[str, str]:
         """Safely parse a link from a BeautifulSoup element."""
         if link:
             tag = typing.cast("Tag", link)
-            return tag.text, str(tag.get("href"))
+
+            text = tag.text
+            if normalize_whitespace:
+                # Normalize whitespace by stripping leading/trailing
+                # spaces and collapsing multiple spaces
+                text = " ".join(text.split())
+
+            return text, str(tag.get("href"))
 
         msg = "Link is None or empty."
+        raise ValueError(msg)
+
+    @staticmethod
+    def safe_parse_name(element: PageElement | None) -> str:
+        """Safely parse `name` from a BeautifulSoup element."""
+        if element:
+            tag = typing.cast("Tag", element)
+            return tag.name
+
+        msg = "Element is not a Tag."
+        raise ValueError(msg)
+
+    @staticmethod
+    def safe_next_element(element: PageElement | None) -> PageElement | None:
+        """Safely get the next element in a BeautifulSoup element."""
+        if element:
+            page_element = typing.cast("PageElement", element)
+            return page_element.next_element
+
+        msg = "Element is None or empty."
         raise ValueError(msg)
